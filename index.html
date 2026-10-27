@@ -1,0 +1,1173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Bicicleta</title>
+<style>
+:root{
+  --tapete:#0f6b3a; --tapete-claro:#17904f; --tapete-osc:#063019;
+  --carta:#fdfbf5; --carta-borde:#d9d3c2; --rojo:#c8102e; --negro:#1c1c1c;
+  --oro:#f2c14e; --oro-osc:#b8871c; --texto:#f4f1e6; --texto-suave:#cfe3d5;
+  --dorso:#8b1e2d; --dorso-claro:#a8303f; --peligro:#ff5a5a;
+  --cw:min(26vw, 13.5vh, 130px);
+  --ch:calc(var(--cw) * 1.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:radial-gradient(ellipse at 50% 45%, var(--tapete-claro) 0%, var(--tapete) 48%, var(--tapete-osc) 100%);
+  color:var(--texto);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  overflow:hidden; user-select:none; -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+[hidden]{display:none !important}
+
+/* ---------- Partida ---------- */
+#juego{
+  height:100vh; height:100dvh; display:grid;
+  grid-template-rows:auto 1fr auto 1fr;
+  padding:max(8px, env(safe-area-inset-top)) 16px max(10px, env(safe-area-inset-bottom));
+  touch-action:none; position:relative;
+}
+.barra{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.barra .titulo-mini{font-family:Georgia,"Times New Roman",serif;font-size:15px;color:var(--texto-suave);letter-spacing:.04em}
+.btn-icono{width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.25);display:grid;place-items:center;font-size:18px}
+.btn-icono:hover{background:rgba(0,0,0,.4)}
+.btn-icono svg{width:20px;height:20px}
+
+.zona{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.info{display:flex;align-items:center;gap:10px;font-size:15px}
+.info .nombre{color:var(--texto-suave);text-transform:uppercase;letter-spacing:.08em;font-size:13px}
+.cuenta{min-width:44px;text-align:center;padding:3px 10px;border-radius:999px;background:rgba(0,0,0,.3);font-weight:700;font-variant-numeric:tabular-nums}
+
+.mazo{width:var(--cw);height:var(--ch);position:relative;border-radius:calc(var(--cw)*.08);transition:box-shadow .2s, transform .2s}
+.mazo .dorso{position:absolute;inset:0;transition:transform .15s}
+.mazo.vacio .dorso{display:none}
+.mazo.vacio{border:2px dashed rgba(255,255,255,.3)}
+.mazo.activo .dorso{outline:3px solid var(--oro);outline-offset:3px}
+.mazo.sacudir{animation:sacudir .3s}
+@keyframes sacudir{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.dorso{
+  border-radius:calc(var(--cw)*.08);
+  background:repeating-linear-gradient(45deg,var(--dorso) 0 6px,var(--dorso-claro) 6px 12px);
+  border:calc(var(--cw)*.055) solid var(--carta);
+  display:grid;place-items:center;color:var(--oro);
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+}
+.dorso .emblema{width:62%;aspect-ratio:1;border-radius:50%;background:var(--dorso);border:2px solid var(--oro);display:grid;place-items:center}
+.dorso svg{width:72%}
+
+.barra-tiempo{width:var(--cw);height:4px;border-radius:2px;background:rgba(0,0,0,.25);overflow:hidden}
+.barra-tiempo i{display:block;height:100%;background:var(--oro);transform-origin:left;transform:scaleX(0)}
+.barra-tiempo i.corre{animation:vaciar 5s linear both}
+@keyframes vaciar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.ayuda{font-size:12px;color:var(--texto-suave);text-align:center;opacity:.85}
+
+/* Mesa */
+.zona-mesa{display:flex;flex-direction:column;align-items:center;gap:6px}
+.mesa{
+  width:calc(var(--cw)*2.4);height:calc(var(--ch)*1.2);position:relative;cursor:pointer;
+  border-radius:18px;border:2px dashed rgba(255,255,255,.18);
+}
+.mesa.golpe-0{animation:golpe0 .3s}
+.mesa.golpe-1{animation:golpe1 .3s}
+@keyframes golpe0{30%{transform:scale(.96);box-shadow:0 0 0 6px rgba(242,193,78,.6)}}
+@keyframes golpe1{30%{transform:scale(.96);box-shadow:0 0 0 6px rgba(255,90,90,.6)}}
+#mesaCartas,#mesaFondo{position:absolute;inset:0}
+#mesaCartas.recoger-0{transform:translateY(calc(var(--ch)*2.6)) scale(.5);opacity:0;transition:transform .55s ease-in,opacity .55s ease-in}
+#mesaCartas.recoger-1{transform:translateY(calc(var(--ch)*-2.6)) scale(.5);opacity:0;transition:transform .55s ease-in,opacity .55s ease-in}
+.ranura{
+  position:absolute;left:50%;top:50%;width:var(--cw);height:var(--ch);
+  margin-left:calc(var(--cw)/-2);margin-top:calc(var(--ch)/-2);
+  transform:translateX(calc(var(--i) * var(--cw) * .46)) rotate(calc(var(--i) * 7deg));
+  transition:transform .25s ease-out;
+}
+.fondo-carta{
+  position:absolute;left:50%;top:50%;width:var(--cw);height:var(--ch);
+  margin-left:calc(var(--cw)/-2);margin-top:calc(var(--ch)/-2);
+  border-radius:calc(var(--cw)*.08);background:var(--carta);border:1px solid var(--carta-borde);
+  box-shadow:0 2px 0 var(--carta-borde),0 4px 0 #c9c2ad,0 6px 8px rgba(0,0,0,.35);
+  transform:rotate(-3deg);opacity:.85;
+}
+.info-mesa{font-size:14px;color:var(--texto-suave)}
+
+/* Cartas */
+.carta{
+  position:absolute;inset:0;border-radius:calc(var(--cw)*.08);
+  background:var(--carta);color:var(--negro);border:1px solid var(--carta-borde);
+  box-shadow:0 3px 8px rgba(0,0,0,.35);
+}
+.carta.roja{color:var(--rojo)}
+.carta .esq{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:1;font-size:calc(var(--cw)*.2)}
+.carta .esq b{font-weight:800;letter-spacing:-.04em}
+.carta .esq span{font-size:.85em}
+.carta .esq.sup{top:6%;left:7%}
+.carta .esq.inf{bottom:6%;right:7%;transform:rotate(180deg)}
+.carta .centro{position:absolute;inset:0;display:grid;place-items:center;font-size:calc(var(--cw)*.48)}
+.carta.figura .centro{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:calc(var(--cw)*.5)}
+.carta.figura::after{content:"";position:absolute;inset:20% 18%;border:2px solid currentColor;opacity:.22;border-radius:5px}
+.carta.desde-0{animation:desde0 .28s ease-out}
+.carta.desde-1{animation:desde1 .28s ease-out}
+@keyframes desde0{from{transform:translateY(calc(var(--ch)*2.4)) rotate(-25deg) scale(.85)}}
+@keyframes desde1{from{transform:translateY(calc(var(--ch)*-2.4)) rotate(25deg) scale(.85)}}
+
+/* Carteles */
+#cartel{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:grid;place-items:center;pointer-events:none;z-index:20}
+.cartel{text-align:center;padding:12px 18px;border-radius:16px;max-width:calc(100% - 24px);animation:cartel 1.6s ease-out forwards}
+.cartel strong{display:block;font-family:Georgia,"Times New Roman",serif;font-weight:900;letter-spacing:.03em}
+.cartel small{display:block;margin-top:4px;font-size:15px}
+.cartel.jugada{background:rgba(20,10,0,.82);border:3px solid var(--oro);color:var(--oro)}
+.cartel.jugada strong{font-size:clamp(18px,5.4vw,54px);letter-spacing:0;text-shadow:0 3px 0 var(--oro-osc)}
+.cartel.falso{background:rgba(40,0,0,.85);border:3px solid var(--peligro);color:#ffd6d6}
+.cartel.falso strong{font-size:clamp(26px,8vw,48px);color:var(--peligro)}
+.cartel.info{background:rgba(0,0,0,.6);animation-duration:1.3s}
+.cartel.info strong{font-family:inherit;font-weight:700;font-size:18px}
+.cartel.jugada small,.cartel.falso small{color:var(--texto)}
+@keyframes cartel{
+  0%{transform:scale(.4);opacity:0}
+  12%{transform:scale(1.08);opacity:1}
+  20%{transform:scale(1)}
+  80%{opacity:1}
+  100%{opacity:0;transform:scale(1)}
+}
+
+body.pausado *{animation-play-state:paused !important}
+
+/* ---------- Capas (menú, reglas, pausa, fin) ---------- */
+.capa{
+  position:fixed;inset:0;z-index:50;overflow:auto;
+  background:radial-gradient(ellipse at 50% 30%, rgba(10,60,32,.94), rgba(3,22,12,.97));
+  display:flex;align-items:center;justify-content:center;padding:24px 16px;
+}
+.panel{width:100%;max-width:440px;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;margin:auto}
+.logo{color:var(--oro);width:120px}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(44px,13vw,68px);color:var(--oro);letter-spacing:.02em;line-height:1;text-shadow:0 4px 0 var(--oro-osc)}
+h2{font-family:Georgia,"Times New Roman",serif;font-size:32px;color:var(--oro)}
+.subtitulo{color:var(--texto-suave)}
+.btn{
+  width:100%;max-width:300px;padding:14px 20px;border-radius:12px;font-size:18px;font-weight:700;
+  background:var(--oro);color:#2a1d00;box-shadow:0 4px 0 var(--oro-osc);
+}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--oro-osc)}
+.btn.sec{background:rgba(255,255,255,.12);color:var(--texto);box-shadow:0 4px 0 rgba(0,0,0,.35)}
+.selector{display:flex;background:rgba(0,0,0,.3);border-radius:12px;padding:4px;gap:4px;width:100%;max-width:300px}
+.selector button{flex:1;padding:10px 6px;border-radius:9px;font-size:15px;color:var(--texto-suave)}
+.selector button[aria-pressed="true"]{background:var(--texto);color:#123;font-weight:700}
+.etiqueta{font-size:13px;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.1em;margin-bottom:-10px}
+
+#reglas .panel{max-width:600px;text-align:left;align-items:stretch}
+#reglas h2{text-align:center}
+#reglas h3{color:var(--oro);font-size:17px;margin-bottom:6px}
+#reglas p,#reglas li{color:var(--texto);line-height:1.5;font-size:15px}
+#reglas ul{padding-left:20px}
+.regla{background:rgba(0,0,0,.22);border-radius:12px;padding:14px 16px}
+.ejemplo{--cw:46px;--ch:calc(var(--cw)*1.4);display:flex;gap:6px;margin:10px 0 2px;flex-wrap:wrap}
+.ejemplo .carta{position:relative;display:block;width:var(--cw);height:var(--ch)}
+.ejemplo .flecha{align-self:center;color:var(--texto-suave);font-size:14px;padding:0 4px}
+#reglas .btn{align-self:center}
+
+/* ---------- Pruebas ---------- */
+#pruebas{position:fixed;inset:0;overflow:auto;background:#0b1a12;padding:20px 16px;font-family:ui-monospace,Consolas,monospace;font-size:14px;z-index:100;touch-action:auto}
+#pruebas h2{font-family:inherit;font-size:20px;margin-bottom:12px}
+#pruebas li{list-style:none;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+#pruebas .ok{color:#7be28f}
+#pruebas .mal{color:var(--peligro)}
+#pruebas .det{color:var(--texto-suave);margin-left:22px;display:block}
+</style>
+</head>
+<body>
+
+<!-- ===================== PARTIDA ===================== -->
+<main id="juego" hidden>
+  <header class="barra">
+    <button class="btn-icono" id="btnPausa" aria-label="Pausa">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+    </button>
+    <div class="titulo-mini">Bicicleta · <span id="difEtiqueta"></span></div>
+    <button class="btn-icono" id="btnSonido" aria-label="Silenciar"></button>
+  </header>
+
+  <section class="zona">
+    <div class="mazo" id="mazoIA"></div>
+    <div class="info"><span class="nombre">Máquina</span><span class="cuenta" id="cuentaIA">52</span></div>
+  </section>
+
+  <section class="zona-mesa">
+    <div class="mesa" id="mesa" aria-label="Mesa: toca para hacer Bamboozle o Ensanduchamiento">
+      <div id="mesaFondo"></div>
+      <div id="mesaCartas"></div>
+    </div>
+    <div class="info-mesa">Mesa: <b id="cuentaMesa">0</b></div>
+  </section>
+
+  <section class="zona">
+    <div class="info"><span class="nombre">Tú</span><span class="cuenta" id="cuentaH">52</span></div>
+    <div class="mazo" id="mazoH"></div>
+    <div class="barra-tiempo"><i id="barraTiempo"></i></div>
+    <p class="ayuda" id="ayuda"></p>
+  </section>
+
+  <div id="cartel"></div>
+</main>
+
+<!-- ===================== MENÚ ===================== -->
+<div class="capa" id="menu" hidden>
+  <div class="panel">
+    <div class="logo" id="logoMenu"></div>
+    <h1>Bicicleta</h1>
+    <p class="subtitulo">Quédate con las 104 cartas.</p>
+    <div class="etiqueta">Dificultad</div>
+    <div class="selector" id="selDificultad" role="group" aria-label="Dificultad">
+      <button data-dif="facil">Fácil</button>
+      <button data-dif="medio">Medio</button>
+      <button data-dif="dificil">Difícil</button>
+    </div>
+    <button class="btn" id="btnJugar">Jugar</button>
+    <button class="btn sec" id="btnReglas">Reglas</button>
+  </div>
+</div>
+
+<!-- ===================== REGLAS ===================== -->
+<div class="capa" id="reglas" hidden>
+  <div class="panel">
+    <h2>Cómo se juega</h2>
+    <div class="regla">
+      <h3>Objetivo</h3>
+      <p>Se reparten dos barajas (104 cartas) a partes iguales. Gana quien se queda con todas. Pierdes en cuanto te quedas sin cartas.</p>
+    </div>
+    <div class="regla">
+      <h3>Turnos</h3>
+      <p>Por turnos, cada jugador lanza a ciegas la carta de arriba de su montón. Del 2 al 10 no pasa nada: lanza el otro. Si tardas más de 5 segundos, tu carta se lanza sola.</p>
+    </div>
+    <div class="regla">
+      <h3>Figuras y castigos</h3>
+      <p>Una figura obliga al rival a lanzar seguidas: <b>J = 4</b>, <b>Q = 3</b>, <b>K = 2</b>, <b>A = 1</b> cartas.</p>
+      <ul>
+        <li>Si en el castigo no sale ninguna figura, quien lanzó la última figura se lleva el montón.</li>
+        <li>Si sale una figura, el castigo se corta y ahora lo paga el otro.</li>
+      </ul>
+    </div>
+    <div class="regla">
+      <h3>¡Bamboozle!</h3>
+      <p>Dos cartas seguidas del mismo valor. El primero en tocar la mesa se lleva el montón.</p>
+      <div class="ejemplo" id="ejBamboozle"></div>
+    </div>
+    <div class="regla">
+      <h3>¡Ensanduchamiento!</h3>
+      <p>Dos cartas del mismo valor con una cualquiera en medio. También se gana tocando primero.</p>
+      <div class="ejemplo" id="ejSandwich"></div>
+    </div>
+    <div class="regla">
+      <h3>Toque falso</h3>
+      <p>Si tocas la mesa sin que haya jugada, el rival se lleva todo el montón. Se puede tocar en cualquier momento, incluso en mitad de un castigo.</p>
+    </div>
+    <div class="regla">
+      <h3>Controles</h3>
+      <p><b>PC:</b> <b>flecha arriba (↑)</b> para lanzar, <b>barra espaciadora</b> para tocar la mesa (también vale hacer clic en ella).<br><b>Móvil:</b> desliza tu montón hacia arriba para lanzar, toca la mesa para tocar.</p>
+    </div>
+    <button class="btn" id="btnCerrarReglas">Entendido</button>
+  </div>
+</div>
+
+<!-- ===================== PAUSA ===================== -->
+<div class="capa" id="pausa" hidden>
+  <div class="panel">
+    <h2>Pausa</h2>
+    <button class="btn" id="btnContinuar">Continuar</button>
+    <button class="btn sec" id="btnReglasPausa">Reglas</button>
+    <button class="btn sec" id="btnSalir">Salir al menú</button>
+  </div>
+</div>
+
+<!-- ===================== FIN ===================== -->
+<div class="capa" id="fin" hidden>
+  <div class="panel">
+    <div class="logo" id="logoFin"></div>
+    <h2 id="finTitulo"></h2>
+    <p class="subtitulo" id="finTexto"></p>
+    <button class="btn" id="btnRevancha">Revancha</button>
+    <button class="btn sec" id="btnMenuFin">Menú</button>
+  </div>
+</div>
+
+<div id="pruebas" hidden></div>
+
+<script>
+'use strict';
+
+/* =====================================================================
+   MOTOR: lógica pura, sin DOM. estado + acción → nuevo estado + eventos.
+   El estado es JSON plano para poder sincronizarlo con un servidor.
+   ===================================================================== */
+const Motor = (() => {
+  const CASTIGO = { 11: 4, 12: 3, 13: 2, 14: 1 }; // J, Q, K, A
+  const esFigura = c => c.r >= 11;
+
+  function crearRng(semilla) {
+    let a = semilla >>> 0;
+    return () => {
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function nuevaPartida(semilla) {
+    const rnd = crearRng(semilla);
+    const mazo = [];
+    let id = 0;
+    for (let b = 0; b < 2; b++)
+      for (let s = 0; s < 4; s++)
+        for (let r = 2; r <= 14; r++) mazo.push({ id: id++, r, s });
+    for (let i = mazo.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [mazo[i], mazo[j]] = [mazo[j], mazo[i]];
+    }
+    return {
+      semilla: semilla >>> 0,
+      manos: [mazo.slice(0, 52), mazo.slice(52)], // índice 0 = carta de arriba
+      mesa: [],                                    // último elemento = carta de arriba
+      turno: rnd() < 0.5 ? 0 : 1,
+      castigo: null,  // { pagador, restantes, dueno }
+      cobro: null,    // jugador que se llevará el montón al completarse un castigo
+      ganador: null,
+      lanzadas: 0
+    };
+  }
+
+  function jugadaEnMesa(mesa) {
+    const n = mesa.length;
+    if (n >= 2 && mesa[n - 1].r === mesa[n - 2].r) return 'BAMBOOZLE';
+    if (n >= 3 && mesa[n - 1].r === mesa[n - 3].r) return 'ENSANDUCHAMIENTO';
+    return null;
+  }
+
+  const clonar = s => ({
+    ...s,
+    manos: [s.manos[0].slice(), s.manos[1].slice()],
+    mesa: s.mesa.slice(),
+    castigo: s.castigo ? { ...s.castigo } : null
+  });
+
+  function ganarMonton(s, jugador, motivo, ev) {
+    const cartas = s.mesa.length;
+    s.manos[jugador].push(...s.mesa); // debajo, en el orden en que se lanzaron
+    s.mesa = [];
+    s.castigo = null;
+    s.cobro = null;
+    s.turno = jugador;
+    ev.push({ tipo: 'MONTON_GANADO', jugador, motivo, cartas });
+  }
+
+  function reducir(s0, accion) {
+    const sinCambios = { estado: s0, eventos: [] };
+    if (s0.ganador !== null) return sinCambios;
+    const s = clonar(s0);
+    const ev = [];
+
+    switch (accion.tipo) {
+      case 'LANZAR':
+      case 'TIMEOUT': {
+        const p = accion.jugador, o = 1 - p;
+        if (s.cobro !== null || s.turno !== p || s.manos[p].length === 0) return sinCambios;
+        const carta = s.manos[p].shift();
+        s.mesa.push(carta);
+        s.lanzadas++;
+        ev.push({ tipo: 'CARTA_LANZADA', jugador: p, carta, automatica: accion.tipo === 'TIMEOUT', t: accion.t });
+
+        if (s.manos[p].length === 0) {
+          s.ganador = o;
+          s.turno = null;
+          s.castigo = null;
+          ev.push({ tipo: 'FIN_PARTIDA', ganador: o });
+        } else if (esFigura(carta)) {
+          s.castigo = { pagador: o, restantes: CASTIGO[carta.r], dueno: p };
+          s.turno = o;
+          ev.push({ tipo: 'CASTIGO_INICIADO', pagador: o, cartas: CASTIGO[carta.r], dueno: p });
+        } else if (s.castigo) {
+          s.castigo.restantes--;
+          if (s.castigo.restantes === 0) {
+            s.cobro = s.castigo.dueno;
+            s.castigo = null;
+            s.turno = null;
+            ev.push({ tipo: 'CASTIGO_COMPLETADO', ganador: s.cobro });
+          }
+        } else {
+          s.turno = o;
+        }
+        break;
+      }
+
+      case 'COBRAR': {
+        if (s.cobro === null) return sinCambios;
+        ganarMonton(s, s.cobro, 'CASTIGO', ev);
+        break;
+      }
+
+      case 'TOCAR': {
+        const p = accion.jugador;
+        if (s.mesa.length === 0) return sinCambios;
+        const jugada = jugadaEnMesa(s.mesa);
+        ev.push({ tipo: 'TOQUE', jugador: p, jugada, t: accion.t });
+        if (jugada) {
+          ganarMonton(s, p, jugada, ev);
+        } else {
+          ev.push({ tipo: 'TOQUE_FALSO', jugador: p });
+          ganarMonton(s, 1 - p, 'TOQUE_FALSO', ev);
+        }
+        break;
+      }
+
+      default:
+        return sinCambios;
+    }
+    return { estado: s, eventos: ev };
+  }
+
+  return { nuevaPartida, reducir, jugadaEnMesa, crearRng, esFigura, CASTIGO };
+})();
+
+/* =====================================================================
+   CONFIGURACIÓN
+   ===================================================================== */
+const HUMANO = 0, IA = 1;
+const DIFICULTAD = {
+  facil:   { nombre: 'Fácil',   reaccion: [900, 1400], noVer: 0.25, falso: 0.03 },
+  medio:   { nombre: 'Medio',   reaccion: [500, 800],  noVer: 0.10, falso: 0.015 },
+  dificil: { nombre: 'Difícil', reaccion: [250, 450],  noVer: 0.02, falso: 0.005 }
+};
+const IA_RETRASO_LANZAR = [600, 1200];
+const TIEMPO_LIMITE = 5000;
+const PAUSA_COBRO = 1000;   // margen para tocar antes de que se cobre un castigo
+const ANIM_RECOGER = 600;
+const UMBRAL_DESLIZAR = 30;
+
+const PALOS = ['♠', '♥', '♦', '♣'];
+const nombreRango = r => ({ 11: 'J', 12: 'Q', 13: 'K', 14: 'A' })[r] || String(r);
+const azar = (a, b) => a + Math.random() * (b - a);
+const $ = sel => document.querySelector(sel);
+
+const BICI = `<svg viewBox="0 0 64 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="27" r="10"/><circle cx="51" cy="27" r="10"/><path d="M13 27 L24 12 L44 12 L51 27 M24 12 L32 27 L13 27 M32 27 L44 12 M24 12 L21 6 M17 6 L26 6 M44 12 L42 5 L48 5"/></g></svg>`;
+
+function htmlCarta(c) {
+  const roja = c.s === 1 || c.s === 2;
+  const R = nombreRango(c.r), S = PALOS[c.s];
+  const fig = c.r >= 11;
+  return `<div class="carta${roja ? ' roja' : ''}${fig ? ' figura' : ''}">` +
+    `<div class="esq sup"><b>${R}</b><span>${S}</span></div>` +
+    `<div class="centro">${fig ? R : S}</div>` +
+    `<div class="esq inf"><b>${R}</b><span>${S}</span></div></div>`;
+}
+const htmlDorso = () => `<div class="dorso"><div class="emblema">${BICI}</div></div>`;
+
+/* =====================================================================
+   RELOJ: temporizadores que se pueden pausar todos a la vez.
+   ===================================================================== */
+const Reloj = {
+  tareas: new Set(),
+  pausado: false,
+  programar(fn, ms) {
+    const t = { fn, restante: ms, inicio: 0, h: null };
+    this.tareas.add(t);
+    if (!this.pausado) this._armar(t);
+    return t;
+  },
+  _armar(t) {
+    t.inicio = performance.now();
+    t.h = setTimeout(() => { this.tareas.delete(t); t.fn(); }, Math.max(0, t.restante));
+  },
+  cancelar(t) {
+    if (!t) return;
+    clearTimeout(t.h);
+    this.tareas.delete(t);
+  },
+  pausar() {
+    if (this.pausado) return;
+    this.pausado = true;
+    const ahora = performance.now();
+    for (const t of this.tareas) { clearTimeout(t.h); t.restante -= ahora - t.inicio; }
+  },
+  reanudar() {
+    if (!this.pausado) return;
+    this.pausado = false;
+    for (const t of this.tareas) this._armar(t);
+  },
+  limpiar() {
+    for (const t of this.tareas) clearTimeout(t.h);
+    this.tareas.clear();
+    this.pausado = false;
+  }
+};
+
+/* =====================================================================
+   SONIDO: efectos sintetizados con Web Audio.
+   ===================================================================== */
+const Sonido = {
+  ctx: null,
+  mudo: false,
+  init() {
+    if (!this.ctx) {
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; }
+    }
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  tono(freq, dur, tipo = 'sine', vol = 0.15, retraso = 0, freqFinal = null) {
+    if (this.mudo || !this.ctx) return;
+    const t0 = this.ctx.currentTime + retraso;
+    const osc = this.ctx.createOscillator(), g = this.ctx.createGain();
+    osc.type = tipo;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (freqFinal) osc.frequency.exponentialRampToValueAtTime(freqFinal, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g).connect(this.ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  },
+  ruido(dur, vol, frecuencia) {
+    if (this.mudo || !this.ctx) return;
+    const n = Math.floor(this.ctx.sampleRate * dur);
+    const buf = this.ctx.createBuffer(1, n, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = this.ctx.createBufferSource(), f = this.ctx.createBiquadFilter(), g = this.ctx.createGain();
+    src.buffer = buf;
+    f.type = 'bandpass'; f.frequency.value = frecuencia; f.Q.value = 0.8;
+    g.gain.value = vol;
+    src.connect(f).connect(g).connect(this.ctx.destination);
+    src.start();
+  },
+  lanzar()  { this.ruido(0.09, 0.5, 2600); },
+  figura()  { this.tono(880, 0.12, 'sine', 0.08, 0.04); },
+  tocar()   { this.tono(160, 0.14, 'triangle', 0.35, 0, 60); this.ruido(0.06, 0.4, 700); },
+  jugada()  { [523, 659, 784, 1047].forEach((f, i) => this.tono(f, 0.2, 'square', 0.07, i * 0.08)); },
+  falso()   { this.tono(200, 0.4, 'sawtooth', 0.1, 0, 80); },
+  recoger() { this.ruido(0.3, 0.25, 1200); },
+  victoria(){ [523, 659, 784, 1047, 784, 1047].forEach((f, i) => this.tono(f, 0.25, 'triangle', 0.16, i * 0.12)); },
+  derrota() { [392, 330, 262, 196].forEach((f, i) => this.tono(f, 0.35, 'triangle', 0.16, i * 0.2)); }
+};
+
+/* =====================================================================
+   INTERFAZ Y CONTROL DE LA PARTIDA
+   ===================================================================== */
+let estado = null;
+let dificultad = 'medio';
+let claveTurno = null, tareaTurno = null, tareaCobro = null;
+let tareasIA = [];
+let recogiendo = false;
+let ultimaLanzada = null;
+
+const el = {};
+['juego', 'menu', 'reglas', 'pausa', 'fin', 'mazoIA', 'mazoH', 'mesa', 'mesaCartas', 'mesaFondo',
+ 'cuentaIA', 'cuentaH', 'cuentaMesa', 'barraTiempo', 'ayuda', 'cartel', 'difEtiqueta', 'btnSonido',
+ 'finTitulo', 'finTexto'].forEach(id => el[id] = document.getElementById(id));
+
+const leer = (k, def) => { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } };
+const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+let reglasDesde = 'menu';
+function mostrarCapa(id) {
+  for (const c of ['menu', 'reglas', 'pausa', 'fin']) el[c].hidden = c !== id;
+}
+
+function iniciarPartida() {
+  Reloj.limpiar();
+  document.body.classList.remove('pausado');
+  estado = Motor.nuevaPartida((Math.random() * 2 ** 32) >>> 0);
+  claveTurno = null; tareaTurno = null; tareaCobro = null; tareasIA = [];
+  recogiendo = false; ultimaLanzada = null;
+  el.mesaCartas.className = '';
+  el.mesaCartas.innerHTML = '';
+  el.difEtiqueta.textContent = DIFICULTAD[dificultad].nombre;
+  el.juego.hidden = false;
+  mostrarCapa(null);
+  if (document.activeElement) document.activeElement.blur();
+  render();
+  cartel(estado.turno === HUMANO ? 'Empiezas tú' : 'Empieza la máquina', '', 'info');
+  planificar();
+}
+
+function despachar(accion) {
+  if (!estado) return;
+  const { estado: nuevo, eventos } = Motor.reducir(estado, accion);
+  if (nuevo === estado) return;
+  estado = nuevo;
+  for (const e of eventos) manejarEvento(e);
+  render();
+  planificar();
+}
+
+function manejarEvento(e) {
+  switch (e.tipo) {
+    case 'CARTA_LANZADA':
+      ultimaLanzada = { id: e.carta.id, jugador: e.jugador };
+      Sonido.lanzar();
+      observarIA();
+      break;
+    case 'CASTIGO_INICIADO':
+      Sonido.figura();
+      break;
+    case 'TOQUE':
+      Sonido.tocar();
+      el.mesa.classList.remove('golpe-0', 'golpe-1');
+      void el.mesa.offsetWidth;
+      el.mesa.classList.add('golpe-' + e.jugador);
+      break;
+    case 'TOQUE_FALSO':
+      Sonido.falso();
+      break;
+    case 'MONTON_GANADO':
+      anunciarMonton(e);
+      cancelarTareasMesa();
+      animarRecogida(e.jugador);
+      break;
+    case 'FIN_PARTIDA':
+      Reloj.limpiar();
+      detenerBarra();
+      Reloj.programar(() => mostrarFin(e.ganador), 900);
+      break;
+  }
+}
+
+function anunciarMonton(e) {
+  const tuyo = e.jugador === HUMANO;
+  const n = `+${e.cartas} carta${e.cartas === 1 ? '' : 's'}`;
+  if (e.motivo === 'BAMBOOZLE' || e.motivo === 'ENSANDUCHAMIENTO') {
+    Sonido.jugada();
+    cartel(e.motivo === 'BAMBOOZLE' ? '¡BAMBOOZLE!' : '¡ENSANDUCHAMIENTO!',
+      tuyo ? `¡Para ti! ${n}` : `La máquina se lo lleva (${n})`, 'jugada');
+  } else if (e.motivo === 'TOQUE_FALSO') {
+    cartel('¡Toque falso!',
+      tuyo ? `La máquina tocó mal: te llevas ${e.cartas} carta${e.cartas === 1 ? '' : 's'}`
+           : `Tocaste mal: la máquina se lleva ${e.cartas} carta${e.cartas === 1 ? '' : 's'}`, 'falso');
+  } else {
+    Sonido.recoger();
+    cartel(tuyo ? `Te llevas el montón (${n})` : `La máquina se lleva el montón (${n})`, '', 'info');
+  }
+}
+
+function cancelarTareasMesa() {
+  Reloj.cancelar(tareaCobro);
+  tareaCobro = null;
+  tareasIA.forEach(t => Reloj.cancelar(t));
+  tareasIA = [];
+}
+
+function animarRecogida(jugador) {
+  recogiendo = true;
+  el.mesaCartas.className = 'recoger-' + jugador;
+  Reloj.programar(() => {
+    recogiendo = false;
+    el.mesaCartas.className = '';
+    el.mesaCartas.innerHTML = '';
+    render();
+  }, ANIM_RECOGER);
+}
+
+/* La IA mira cada carta nueva y decide si toca. */
+function observarIA() {
+  const d = DIFICULTAD[dificultad];
+  const mesa = estado.mesa;
+  const arriba = mesa[mesa.length - 1];
+  const hayJugada = Motor.jugadaEnMesa(mesa) !== null;
+  const tocara = hayJugada ? Math.random() >= d.noVer : Math.random() < d.falso;
+  if (!tocara) return;
+  const t = Reloj.programar(() => {
+    tareasIA = tareasIA.filter(x => x !== t);
+    if (!estado || estado.ganador !== null) return;
+    const m = estado.mesa;
+    if (!m.length || m[m.length - 1].id !== arriba.id) return; // ya la taparon o alguien tocó antes
+    despachar({ tipo: 'TOCAR', jugador: IA, t: performance.now() });
+  }, azar(...d.reaccion));
+  tareasIA.push(t);
+}
+
+/* Programa lo que toca después de cada cambio: cobrar castigo, turno de la IA o tiempo límite del humano. */
+function planificar() {
+  if (!estado || estado.ganador !== null) return;
+  if (estado.cobro !== null && !tareaCobro) {
+    tareaCobro = Reloj.programar(() => { tareaCobro = null; despachar({ tipo: 'COBRAR' }); }, PAUSA_COBRO);
+  }
+  const clave = `${estado.turno}:${estado.lanzadas}:${estado.mesa.length}`;
+  if (clave === claveTurno) return;
+  claveTurno = clave;
+  Reloj.cancelar(tareaTurno);
+  tareaTurno = null;
+  detenerBarra();
+  if (estado.turno === null) return;
+
+  const espera = recogiendo ? ANIM_RECOGER : 0;
+  if (estado.turno === IA) {
+    tareaTurno = Reloj.programar(() => {
+      tareaTurno = null;
+      despachar({ tipo: 'LANZAR', jugador: IA, t: performance.now() });
+    }, espera + azar(...IA_RETRASO_LANZAR));
+  } else {
+    tareaTurno = Reloj.programar(() => {
+      tareaTurno = null;
+      despachar({ tipo: 'TIMEOUT', jugador: HUMANO, t: performance.now() });
+    }, espera + TIEMPO_LIMITE);
+    arrancarBarra(espera);
+  }
+}
+
+function arrancarBarra(retraso) {
+  const b = el.barraTiempo;
+  b.classList.remove('corre');
+  void b.offsetWidth;
+  b.style.animationDelay = retraso + 'ms';
+  b.classList.add('corre');
+}
+function detenerBarra() { el.barraTiempo.classList.remove('corre'); }
+
+/* ---------- Render ---------- */
+function render() {
+  if (!estado) return;
+  pintarMazo(el.mazoIA, estado.manos[IA].length, estado.turno === IA);
+  pintarMazo(el.mazoH, estado.manos[HUMANO].length, estado.turno === HUMANO);
+  el.cuentaIA.textContent = estado.manos[IA].length;
+  el.cuentaH.textContent = estado.manos[HUMANO].length;
+  el.cuentaMesa.textContent = recogiendo ? 0 : estado.mesa.length;
+  if (!recogiendo) pintarMesa();
+}
+
+function pintarMazo(nodo, n, activo) {
+  if (!nodo.firstChild) nodo.innerHTML = htmlDorso();
+  nodo.classList.toggle('vacio', n === 0);
+  nodo.classList.toggle('activo', activo);
+  const capas = Math.min(6, Math.ceil(n / 12));
+  const sombras = [];
+  for (let i = 1; i <= capas; i++) sombras.push(`0 ${i * 2}px 0 ${i % 2 ? '#e8e2d2' : '#b9b19c'}`);
+  sombras.push(`0 ${capas * 2 + 3}px 8px rgba(0,0,0,.4)`);
+  nodo.style.boxShadow = n ? sombras.join(',') : 'none';
+}
+
+function pintarMesa() {
+  const mesa = estado.mesa;
+  const visibles = mesa.slice(-3); // de más antigua a más reciente
+  const ids = new Set(visibles.map(c => String(c.id)));
+  for (const nodo of [...el.mesaCartas.children]) if (!ids.has(nodo.dataset.id)) nodo.remove();
+  const n = visibles.length;
+  visibles.forEach((c, i) => {
+    let nodo = el.mesaCartas.querySelector(`[data-id="${c.id}"]`);
+    if (!nodo) {
+      nodo = document.createElement('div');
+      nodo.className = 'ranura';
+      nodo.dataset.id = c.id;
+      nodo.innerHTML = htmlCarta(c);
+      if (ultimaLanzada && ultimaLanzada.id === c.id) nodo.firstChild.classList.add('desde-' + ultimaLanzada.jugador);
+      el.mesaCartas.appendChild(nodo);
+    }
+    nodo.style.setProperty('--i', i - (n - 1) / 2);
+    nodo.style.zIndex = i + 1;
+  });
+  const debajo = mesa.length - 3;
+  el.mesaFondo.innerHTML = debajo > 0 ? '<div class="fondo-carta"></div>' : '';
+}
+
+function cartel(titulo, sub, tipo) {
+  el.cartel.innerHTML = `<div class="cartel ${tipo}"><strong>${titulo}</strong>${sub ? `<small>${sub}</small>` : ''}</div>`;
+}
+
+function mostrarFin(ganador) {
+  const gano = ganador === HUMANO;
+  gano ? Sonido.victoria() : Sonido.derrota();
+  el.finTitulo.textContent = gano ? '¡Has ganado!' : 'Ha ganado la máquina';
+  el.finTexto.textContent = gano
+    ? `Te quedaste con las 104 cartas en dificultad ${DIFICULTAD[dificultad].nombre.toLowerCase()}.`
+    : 'Te quedaste sin cartas. ¿Revancha?';
+  mostrarCapa('fin');
+}
+
+/* ---------- Pausa ---------- */
+function pausar() {
+  if (!estado || estado.ganador !== null || Reloj.pausado) return;
+  Reloj.pausar();
+  document.body.classList.add('pausado');
+  mostrarCapa('pausa');
+}
+function continuar() {
+  document.body.classList.remove('pausado');
+  mostrarCapa(null);
+  Reloj.reanudar();
+}
+function salirAlMenu() {
+  Reloj.limpiar();
+  document.body.classList.remove('pausado');
+  estado = null;
+  el.juego.hidden = true;
+  mostrarCapa('menu');
+}
+
+/* ---------- Controles ---------- */
+function humanoLanza() {
+  if (!estado || Reloj.pausado || estado.ganador !== null) return;
+  if (recogiendo || estado.turno !== HUMANO) {
+    el.mazoH.classList.remove('sacudir');
+    void el.mazoH.offsetWidth;
+    el.mazoH.classList.add('sacudir');
+    return;
+  }
+  despachar({ tipo: 'LANZAR', jugador: HUMANO, t: performance.now() });
+}
+function humanoToca() {
+  if (!estado || Reloj.pausado || estado.ganador !== null) return;
+  despachar({ tipo: 'TOCAR', jugador: HUMANO, t: performance.now() });
+}
+
+let gesto = null;
+el.mazoH.addEventListener('pointerdown', e => {
+  Sonido.init();
+  gesto = { y: e.clientY, tipo: e.pointerType };
+  try { el.mazoH.setPointerCapture(e.pointerId); } catch (_) {}
+});
+el.mazoH.addEventListener('pointermove', e => {
+  if (!gesto || gesto.tipo === 'mouse') return;
+  const dy = Math.min(0, e.clientY - gesto.y);
+  const dorso = el.mazoH.querySelector('.dorso');
+  if (dorso) dorso.style.transform = `translateY(${dy}px)`;
+});
+function finGesto(e, cancelado) {
+  if (!gesto) return;
+  const dy = e.clientY - gesto.y, tipo = gesto.tipo;
+  gesto = null;
+  const dorso = el.mazoH.querySelector('.dorso');
+  if (dorso) dorso.style.transform = '';
+  if (cancelado) return;
+  if (tipo === 'touch' && dy < -UMBRAL_DESLIZAR) humanoLanza(); // en PC se lanza con la flecha arriba
+}
+el.mazoH.addEventListener('pointerup', e => finGesto(e, false));
+el.mazoH.addEventListener('pointercancel', e => finGesto(e, true));
+
+el.mesa.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  Sonido.init();
+  humanoToca();
+});
+el.juego.addEventListener('contextmenu', e => e.preventDefault());
+
+const enPartida = () => estado && el.juego.hidden === false && !Reloj.pausado && estado.ganador === null;
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && estado) Reloj.pausado ? continuar() : pausar();
+  if (e.key === 'ArrowUp' && enPartida()) {
+    e.preventDefault();
+    if (e.repeat) return;
+    Sonido.init();
+    humanoLanza();
+  }
+  if (e.code === 'Space' && enPartida()) {
+    e.preventDefault(); // evita que el espacio pulse un botón con el foco
+    if (e.repeat) return;
+    Sonido.init();
+    humanoToca();
+  }
+});
+document.addEventListener('keyup', e => { if (e.code === 'Space' && estado && !el.juego.hidden) e.preventDefault(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) pausar(); });
+
+/* ---------- Botones y menús ---------- */
+function pintarSonido() {
+  el.btnSonido.innerHTML = Sonido.mudo
+    ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  el.btnSonido.setAttribute('aria-label', Sonido.mudo ? 'Activar sonido' : 'Silenciar');
+}
+function pintarDificultad() {
+  document.querySelectorAll('#selDificultad button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.dif === dificultad)));
+}
+
+function prepararInterfaz() {
+  dificultad = DIFICULTAD[leer('bicicleta.dificultad', 'medio')] ? leer('bicicleta.dificultad', 'medio') : 'medio';
+  Sonido.mudo = leer('bicicleta.mudo', '0') === '1';
+  pintarDificultad();
+  pintarSonido();
+  $('#logoMenu').innerHTML = BICI;
+  $('#logoFin').innerHTML = BICI;
+  const tactil = matchMedia('(pointer: coarse)').matches;
+  el.ayuda.textContent = tactil
+    ? 'Desliza tu montón hacia arriba para lanzar · toca la mesa para tocar'
+    : 'Flecha arriba (↑) para lanzar · Espacio para tocar la mesa';
+
+  const ej = s => s.split(' ').map((t, i) => {
+    const [r, p] = [t.slice(0, -1), t.slice(-1)];
+    return htmlCarta({ id: i, r: { J: 11, Q: 12, K: 13, A: 14 }[r] || +r, s: '♠♥♦♣'.indexOf(p) });
+  }).join('');
+  $('#ejBamboozle').innerHTML = ej('4♣ 7♥ 7♠');
+  $('#ejSandwich').innerHTML = ej('7♥ K♣ 7♦');
+
+  document.querySelectorAll('#selDificultad button').forEach(b => b.addEventListener('click', () => {
+    dificultad = b.dataset.dif;
+    guardar('bicicleta.dificultad', dificultad);
+    pintarDificultad();
+  }));
+  $('#btnJugar').addEventListener('click', () => { Sonido.init(); iniciarPartida(); });
+  $('#btnReglas').addEventListener('click', () => { reglasDesde = 'menu'; mostrarCapa('reglas'); });
+  $('#btnReglasPausa').addEventListener('click', () => { reglasDesde = 'pausa'; mostrarCapa('reglas'); });
+  $('#btnCerrarReglas').addEventListener('click', () => mostrarCapa(reglasDesde));
+  $('#btnPausa').addEventListener('click', pausar);
+  $('#btnContinuar').addEventListener('click', continuar);
+  $('#btnSalir').addEventListener('click', salirAlMenu);
+  $('#btnRevancha').addEventListener('click', iniciarPartida);
+  $('#btnMenuFin').addEventListener('click', salirAlMenu);
+  el.btnSonido.addEventListener('click', () => {
+    Sonido.mudo = !Sonido.mudo;
+    guardar('bicicleta.mudo', Sonido.mudo ? '1' : '0');
+    Sonido.init();
+    pintarSonido();
+  });
+}
+
+/* =====================================================================
+   PRUEBAS DEL MOTOR  (index.html?test=1)
+   ===================================================================== */
+function ejecutarPruebas() {
+  const resultados = [];
+  const prueba = (nombre, fn) => {
+    const t0 = performance.now();
+    try {
+      const det = fn();
+      resultados.push({ nombre, ok: true, det, ms: performance.now() - t0 });
+    } catch (e) {
+      resultados.push({ nombre, ok: false, det: e.message });
+    }
+  };
+  const afirmar = (c, msg) => { if (!c) throw new Error(msg || 'afirmación fallida'); };
+  const igual = (a, b, msg) => { if (a !== b) throw new Error(`${msg ? msg + ': ' : ''}esperado ${b}, obtenido ${a}`); };
+
+  let sid = 1000;
+  const C = txt => {
+    const m = /^(10|[2-9JQKA])([pcdt])$/.exec(txt);
+    if (!m) throw new Error('carta inválida ' + txt);
+    return { id: sid++, r: { J: 11, Q: 12, K: 13, A: 14 }[m[1]] || +m[1], s: 'pcdt'.indexOf(m[2]) };
+  };
+  const cs = s => s.split(' ').filter(Boolean).map(C);
+  const E = ({ m0 = '', m1 = '', mesa = '', turno = 0, castigo = null, cobro = null } = {}) =>
+    ({ semilla: 0, manos: [cs(m0), cs(m1)], mesa: cs(mesa), turno, castigo, cobro, ganador: null, lanzadas: 0 });
+  const R = (s, a) => Motor.reducir(s, a);
+  const L = p => ({ tipo: 'LANZAR', jugador: p });
+  const T = p => ({ tipo: 'TOCAR', jugador: p });
+  const COBRAR = { tipo: 'COBRAR' };
+  const tipos = ev => ev.map(e => e.tipo);
+
+  prueba('Reparto: 52 + 52 cartas, 104 únicas, 8 de cada valor', () => {
+    const s = Motor.nuevaPartida(12345);
+    igual(s.manos[0].length, 52, 'mano 0');
+    igual(s.manos[1].length, 52, 'mano 1');
+    const todas = [...s.manos[0], ...s.manos[1]];
+    igual(new Set(todas.map(c => c.id)).size, 104, 'ids únicos');
+    for (let r = 2; r <= 14; r++) igual(todas.filter(c => c.r === r).length, 8, 'valor ' + r);
+    afirmar(s.turno === 0 || s.turno === 1, 'turno inicial');
+  });
+
+  prueba('Barajado determinista con semilla', () => {
+    igual(JSON.stringify(Motor.nuevaPartida(7)), JSON.stringify(Motor.nuevaPartida(7)));
+    afirmar(JSON.stringify(Motor.nuevaPartida(7)) !== JSON.stringify(Motor.nuevaPartida(8)), 'semillas distintas dan repartos distintos');
+    let ceros = 0;
+    for (let i = 0; i < 400; i++) if (Motor.nuevaPartida(i).turno === 0) ceros++;
+    afirmar(ceros > 150 && ceros < 250, 'el primer turno se sortea (' + ceros + '/400)');
+  });
+
+  prueba('Carta del 2 al 10 pasa el turno', () => {
+    const { estado: s } = R(E({ m0: '5p 6p', m1: '7p 8p', turno: 0 }), L(0));
+    igual(s.turno, 1);
+    igual(s.mesa.length, 1);
+    igual(s.castigo, null);
+  });
+
+  prueba('Castigos J=4, Q=3, K=2, A=1 y cobro de quien lanzó la figura', () => {
+    for (const [f, n] of [['J', 4], ['Q', 3], ['K', 2], ['A', 1]]) {
+      let s = E({ m0: `${f}p 2c 3c`, m1: '2p 3p 4p 5p 6p 7p', turno: 0 });
+      s = R(s, L(0)).estado;
+      igual(s.castigo.restantes, n, f);
+      igual(s.castigo.pagador, 1, f + ' pagador');
+      igual(s.turno, 1, f + ' turno');
+      for (let i = 0; i < n; i++) {
+        igual(s.cobro, null, f + ' aún no cobra');
+        igual(s.turno, 1, f + ' paga seguido');
+        s = R(s, L(1)).estado;
+      }
+      igual(s.cobro, 0, f + ' cobra quien lanzó la figura');
+      igual(s.turno, null, f + ' nadie lanza durante el cobro');
+      afirmar(R(s, L(1)).estado === s && R(s, L(0)).estado === s, f + ' no se puede lanzar durante el cobro');
+      const s2 = R(s, COBRAR).estado;
+      igual(s2.mesa.length, 0, f + ' mesa vacía');
+      igual(s2.manos[0].length, 2 + 1 + n, f + ' cartas ganadas');
+      igual(s2.turno, 0, f + ' abre la ronda quien se llevó el montón');
+    }
+  });
+
+  prueba('Contracastigo: una figura durante el castigo lo pasa al rival', () => {
+    let s = E({ m0: 'Kp 5c 6c 7c 8c', m1: '3p Qc 9p 9d', turno: 0 });
+    s = R(s, L(0)).estado;                 // K → el 1 paga 2
+    s = R(s, L(1)).estado;                 // 3
+    igual(s.castigo.restantes, 1);
+    const r = R(s, L(1));                  // Q → el 0 paga 3
+    s = r.estado;
+    afirmar(tipos(r.eventos).includes('CASTIGO_INICIADO'));
+    igual(s.castigo.pagador, 0); igual(s.castigo.restantes, 3); igual(s.castigo.dueno, 1); igual(s.turno, 0);
+    s = R(R(R(s, L(0)).estado, L(0)).estado, L(0)).estado;
+    igual(s.cobro, 1, 'cobra quien lanzó la última figura');
+    s = R(s, COBRAR).estado;
+    igual(s.manos[1].length, 2 + 6); igual(s.manos[0].length, 1); igual(s.turno, 1);
+  });
+
+  prueba('Bamboozle: dos iguales seguidas, gana quien toca', () => {
+    let s = E({ mesa: '3c 7p', m0: '4p', m1: '7c 2p', turno: 1 });
+    s = R(s, L(1)).estado;
+    igual(Motor.jugadaEnMesa(s.mesa), 'BAMBOOZLE');
+    const r = R(s, T(0));
+    const g = r.eventos.find(e => e.tipo === 'MONTON_GANADO');
+    igual(g.motivo, 'BAMBOOZLE'); igual(g.jugador, 0);
+    igual(r.estado.manos[0].length, 4); igual(r.estado.turno, 0); igual(r.estado.mesa.length, 0);
+  });
+
+  prueba('Ensanduchamiento: iguales con una carta en medio', () => {
+    const s = E({ mesa: '7p 9c 7d', m0: '2p', m1: '3p' });
+    igual(Motor.jugadaEnMesa(s.mesa), 'ENSANDUCHAMIENTO');
+    const r = R(s, T(1));
+    igual(r.eventos.find(e => e.tipo === 'MONTON_GANADO').motivo, 'ENSANDUCHAMIENTO');
+    igual(r.estado.manos[1].length, 4); igual(r.estado.turno, 1);
+    igual(Motor.jugadaEnMesa(cs('7p 9c 8d')), null);
+    igual(Motor.jugadaEnMesa(cs('7p')), null);
+  });
+
+  prueba('Toque falso: el rival se lleva el montón y abre la ronda', () => {
+    const r = R(E({ mesa: '3c 5p', m0: '2p', m1: '4p', turno: 0 }), T(0));
+    afirmar(tipos(r.eventos).includes('TOQUE_FALSO'));
+    igual(r.estado.manos[1].length, 3); igual(r.estado.manos[0].length, 1); igual(r.estado.turno, 1);
+  });
+
+  prueba('Tocar con la mesa vacía no tiene efecto', () => {
+    const s = E({ m0: '2p', m1: '3p' });
+    const r = R(s, T(0));
+    afirmar(r.estado === s && r.eventos.length === 0);
+  });
+
+  prueba('Doble toque: gana el primero, el segundo se ignora', () => {
+    const s = E({ mesa: '5p 5c', m0: '2p', m1: '3p' });
+    const a = R(s, T(1)).estado;
+    const b = R(a, T(0)).estado;
+    afirmar(b === a, 'segundo toque ignorado');
+    igual(b.manos[1].length, 3); igual(b.manos[0].length, 1);
+  });
+
+  prueba('La jugada deja de valer al taparla', () => {
+    let s = E({ mesa: '5p 5c', m0: '8p 9p', m1: '3p', turno: 0 });
+    s = R(s, L(0)).estado;
+    igual(Motor.jugadaEnMesa(s.mesa), null);
+    const r = R(s, T(1));
+    afirmar(tipos(r.eventos).includes('TOQUE_FALSO'));
+  });
+
+  prueba('Bamboozle en mitad de un castigo anula el castigo', () => {
+    const s = E({ mesa: 'Kc 4p 4c', m0: '6p 7p', m1: '2p', turno: 0, castigo: { pagador: 0, restantes: 1, dueno: 1 } });
+    const r = R(s, T(0)).estado;
+    igual(r.castigo, null); igual(r.turno, 0); igual(r.manos[0].length, 5);
+  });
+
+  prueba('Tocar durante el cobro roba el montón', () => {
+    const s = E({ mesa: 'Jp 3c 8p 5c 5d', m0: '2p', m1: '3p', turno: null, cobro: 1 });
+    const r = R(s, T(0)).estado;
+    igual(r.cobro, null); igual(r.manos[0].length, 6); igual(r.turno, 0);
+    afirmar(R(r, COBRAR).estado === r, 'ya no hay cobro pendiente');
+  });
+
+  prueba('Las cartas ganadas van debajo y en orden de lanzamiento', () => {
+    const s = E({ mesa: '2p 3p 4p', m0: '9c', m1: '9d' });
+    const esperado = [s.manos[0][0].id, ...s.mesa.map(c => c.id)].join(',');
+    const r = R(s, T(1)).estado; // toque falso → el 0 se lo lleva
+    igual(r.manos[0].map(c => c.id).join(','), esperado);
+  });
+
+  prueba('Derrota al quedarse sin cartas', () => {
+    const r = R(E({ m0: '5p', m1: '3c 4c', turno: 0 }), L(0));
+    igual(r.estado.ganador, 1);
+    afirmar(tipos(r.eventos).includes('FIN_PARTIDA'));
+    afirmar(R(r.estado, T(1)).estado === r.estado, 'tras el fin no se aceptan acciones');
+  });
+
+  prueba('Derrota al quedarse sin cartas en mitad de un castigo', () => {
+    const s = E({ m0: '5p', m1: '3c 4c', mesa: 'Qc', turno: 0, castigo: { pagador: 0, restantes: 3, dueno: 1 } });
+    igual(R(s, L(0)).estado.ganador, 1);
+  });
+
+  prueba('No se puede lanzar fuera de turno', () => {
+    const s = E({ m0: '2p', m1: '3p', turno: 0 });
+    afirmar(R(s, L(1)).estado === s);
+  });
+
+  prueba('TIMEOUT lanza la carta automáticamente', () => {
+    const r = R(E({ m0: '2p 3p', m1: '4p', turno: 0 }), { tipo: 'TIMEOUT', jugador: 0 });
+    igual(r.estado.mesa.length, 1); igual(r.estado.turno, 1);
+    afirmar(r.eventos[0].automatica === true);
+  });
+
+  prueba('El estado es serializable a JSON y reproducible', () => {
+    let s = Motor.nuevaPartida(42);
+    for (let i = 0; i < 30; i++) s = R(s, s.cobro !== null ? COBRAR : L(s.turno)).estado;
+    const copia = JSON.parse(JSON.stringify(s));
+    igual(JSON.stringify(copia), JSON.stringify(s));
+    const a = R(s, s.cobro !== null ? COBRAR : L(s.turno)).estado;
+    const b = R(copia, copia.cobro !== null ? COBRAR : L(copia.turno)).estado;
+    igual(JSON.stringify(a), JSON.stringify(b));
+  });
+
+  prueba('1000 partidas IA contra IA sin errores y con 104 cartas siempre', () => {
+    const rnd = Motor.crearRng(2026);
+    const LIMITE = 50000;
+    let terminadas = 0, pasosTotales = 0, maxPasos = 0;
+    for (let g = 0; g < 1000; g++) {
+      let s = Motor.nuevaPartida((rnd() * 2 ** 32) >>> 0);
+      let pasos = 0;
+      while (s.ganador === null && pasos < LIMITE) {
+        pasos++;
+        let a;
+        if (Motor.jugadaEnMesa(s.mesa) && rnd() < 0.6) a = T(rnd() < 0.5 ? 0 : 1);
+        else if (s.mesa.length && rnd() < 0.01) a = T(rnd() < 0.5 ? 0 : 1);
+        else if (s.cobro !== null) a = COBRAR;
+        else a = L(s.turno);
+        const sig = R(s, a).estado;
+        if (sig === s) throw new Error(`partida ${g}: acción ${a.tipo} sin efecto (bloqueo)`);
+        s = sig;
+        const total = s.manos[0].length + s.manos[1].length + s.mesa.length;
+        if (total !== 104) throw new Error(`partida ${g}, paso ${pasos}: ${total} cartas`);
+      }
+      const ids = new Set([...s.manos[0], ...s.manos[1], ...s.mesa].map(c => c.id));
+      if (ids.size !== 104) throw new Error(`partida ${g}: cartas duplicadas`);
+      if (s.ganador !== null) terminadas++;
+      pasosTotales += pasos; maxPasos = Math.max(maxPasos, pasos);
+    }
+    afirmar(terminadas >= 990, `solo terminaron ${terminadas}/1000`);
+    return `${terminadas}/1000 terminadas · media ${Math.round(pasosTotales / 1000)} acciones · máx ${maxPasos}`;
+  });
+
+  const ok = resultados.filter(r => r.ok).length;
+  const panel = $('#pruebas');
+  panel.hidden = false;
+  panel.innerHTML = `<h2 class="${ok === resultados.length ? 'ok' : 'mal'}">Pruebas del motor: ${ok}/${resultados.length} correctas</h2><ul>` +
+    resultados.map(r => `<li class="${r.ok ? 'ok' : 'mal'}">${r.ok ? '✔' : '✘'} ${r.nombre}` +
+      (r.det ? `<span class="det">${r.det}</span>` : '') + '</li>').join('') + '</ul>';
+  console.log(`Bicicleta · pruebas: ${ok}/${resultados.length} correctas`);
+  resultados.forEach(r => (r.ok ? console.log : console.error)(`${r.ok ? '✔' : '✘'} ${r.nombre}${r.det ? ' — ' + r.det : ''}`));
+  window.resultadosPruebas = { ok, total: resultados.length, resultados };
+}
+
+/* =====================================================================
+   ARRANQUE
+   ===================================================================== */
+if (new URLSearchParams(location.search).get('test') === '1') {
+  ejecutarPruebas();
+} else {
+  prepararInterfaz();
+  mostrarCapa('menu');
+}
+</script>
+</body>
+</html>
