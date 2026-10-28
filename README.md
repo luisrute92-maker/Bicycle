@@ -4,6 +4,8 @@ Juego de cartas para dos jugadores: tú contra la máquina. Se reparten dos bara
 
 Todo el juego está en un único `index.html`, sin dependencias. Se abre con doble clic en cualquier navegador.
 
+Disponible en **español e inglés**: el idioma se cambia desde el menú principal (ES / EN) y, la primera vez, se usa el del dispositivo.
+
 ## Reglas
 
 - Por turnos, cada jugador lanza a ciegas la carta de arriba de su montón. Si tardas más de 5 segundos, se lanza sola.

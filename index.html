@@ -217,6 +217,8 @@ h2{font-family:var(--f-titulo);font-weight:400;font-size:34px;color:var(--oro);l
 .selector button{flex:1;padding:10px 6px;border-radius:9px;font-size:13px;font-weight:600;color:var(--texto-suave)}
 .selector button[aria-pressed="true"]{background:var(--oro);color:#2a1d00;font-weight:800}
 .etiqueta{font-size:11px;font-weight:700;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.2em;margin-bottom:-10px}
+.selector.idioma{position:absolute;top:max(14px, env(safe-area-inset-top));right:16px;width:auto;max-width:none;z-index:1}
+.selector.idioma button{flex:none;padding:7px 12px;font-size:12px;font-weight:700;letter-spacing:.08em}
 .opcion{width:100%;max-width:300px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;border-radius:12px;background:rgba(0,0,0,.24);border:1px solid rgba(232,195,106,.14)}
 .opcion .etiqueta{margin:0;color:var(--oro);font-size:12px}
 .opcion .selector{max-width:none}
@@ -260,7 +262,7 @@ kbd{display:inline-block;min-width:34px;padding:3px 8px;border-radius:6px;backgr
 <!-- ===================== PARTIDA ===================== -->
 <main id="juego" hidden>
   <header class="barra">
-    <button class="btn-icono" id="btnPausa" aria-label="Pausa">
+    <button class="btn-icono" id="btnPausa" data-t-aria="pausa" aria-label="Pausa">
       <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
     </button>
     <div class="titulo-mini">Slap Royale</div>
@@ -269,20 +271,20 @@ kbd{display:inline-block;min-width:34px;padding:3px 8px;border-radius:6px;backgr
 
   <section class="zona">
     <div class="mazo" id="mazoIA"></div>
-    <div class="info"><span class="nombre">Máquina</span><span class="cuenta" id="cuentaIA">52</span></div>
+    <div class="info"><span class="nombre" data-t="maquina">Máquina</span><span class="cuenta" id="cuentaIA">52</span></div>
   </section>
 
   <section class="zona-mesa">
-    <div class="mesa" id="mesa" aria-label="Mesa: toca para hacer Bamboozle o Sandwich">
+    <div class="mesa" id="mesa" data-t-aria="mesaAria" aria-label="Mesa: toca para hacer Bamboozle o Sandwich">
       <div id="mesaFondo"></div>
       <div id="mesaCartas"></div>
     </div>
-    <div class="info-mesa">Mesa: <b id="cuentaMesa">0</b></div>
+    <div class="info-mesa"><span data-t="mesa">Mesa</span>: <b id="cuentaMesa">0</b></div>
     <div class="castigo" id="castigoInfo" aria-live="polite"></div>
   </section>
 
   <section class="zona">
-    <div class="info"><span class="nombre">Tú</span><span class="cuenta" id="cuentaH">52</span></div>
+    <div class="info"><span class="nombre" data-t="tu">Tú</span><span class="cuenta" id="cuentaH">52</span></div>
     <div class="mazo" id="mazoH"></div>
     <div class="barra-tiempo"><i id="barraTiempo"></i></div>
     <p class="ayuda" id="ayuda"></p>
@@ -293,118 +295,122 @@ kbd{display:inline-block;min-width:34px;padding:3px 8px;border-radius:6px;backgr
 
 <!-- ===================== MENÚ ===================== -->
 <div class="capa" id="menu" hidden>
+  <div class="selector idioma" id="selIdioma" role="group" aria-label="Idioma / Language">
+    <button data-idioma="es">ES</button>
+    <button data-idioma="en">EN</button>
+  </div>
   <div class="panel">
     <div class="logo" id="logoMenu"></div>
     <h1>Slap Royale</h1>
     <div class="adorno"><span>♠ ♥ ♣ ♦</span></div>
-    <p class="subtitulo">Quédate con las 104 cartas.</p>
-    <button class="btn" id="btnJugar">Jugar</button>
-    <button class="btn sec" id="btnOpciones">Opciones</button>
-    <button class="btn sec" id="btnReglas">Reglas</button>
+    <p class="subtitulo" data-t="lema">Quédate con las 104 cartas.</p>
+    <button class="btn" id="btnJugar" data-t="jugar">Jugar</button>
+    <button class="btn sec" id="btnOpciones" data-t="opciones">Opciones</button>
+    <button class="btn sec" id="btnReglas" data-t="reglas">Reglas</button>
   </div>
 </div>
 
 <!-- ===================== OPCIONES ===================== -->
 <div class="capa" id="opciones" hidden>
   <div class="panel">
-    <h2>Opciones</h2>
+    <h2 data-t="opciones">Opciones</h2>
     <div class="opcion">
       <div class="etiqueta">Sandwich</div>
-      <p class="nota">Tocar también cuando salen dos cartas iguales con una en medio (7 – K – 7).</p>
+      <p class="nota" data-t="notaSandwich">Tocar también cuando salen dos cartas iguales con una en medio (7 – K – 7).</p>
       <div class="selector" id="selSandwich" role="group" aria-label="Sandwich">
-        <button data-sandwich="1">Activado</button>
-        <button data-sandwich="0">Desactivado</button>
+        <button data-sandwich="1" data-t="activado">Activado</button>
+        <button data-sandwich="0" data-t="desactivado">Desactivado</button>
       </div>
     </div>
     <div class="opcion">
-      <div class="etiqueta">Sonido</div>
-      <div class="selector" id="selSonido" role="group" aria-label="Sonido">
-        <button data-sonido="1">Activado</button>
-        <button data-sonido="0">Desactivado</button>
+      <div class="etiqueta" data-t="sonido">Sonido</div>
+      <div class="selector" id="selSonido" role="group" data-t-aria="sonido" aria-label="Sonido">
+        <button data-sonido="1" data-t="activado">Activado</button>
+        <button data-sonido="0" data-t="desactivado">Desactivado</button>
       </div>
     </div>
-    <button class="btn" id="btnCerrarOpciones">Volver</button>
+    <button class="btn" id="btnCerrarOpciones" data-t="volver">Volver</button>
   </div>
 </div>
 
 <!-- ===================== REGLAS ===================== -->
 <div class="capa texto" id="reglas" hidden>
   <div class="panel">
-    <h2>Cómo se juega</h2>
+    <h2 data-t="comoSeJuega">Cómo se juega</h2>
     <div class="regla">
-      <h3>Objetivo</h3>
-      <p>Se reparten dos barajas (104 cartas) a partes iguales. Gana quien se queda con todas. Pierdes en cuanto te quedas sin cartas.</p>
+      <h3 data-t="objetivo">Objetivo</h3>
+      <p data-t="objetivoTxt">Se reparten dos barajas (104 cartas) a partes iguales. Gana quien se queda con todas. Pierdes en cuanto te quedas sin cartas.</p>
     </div>
     <div class="regla">
-      <h3>Turnos</h3>
-      <p>Por turnos, cada jugador lanza a ciegas la carta de arriba de su montón. Del 2 al 10 no pasa nada: lanza el otro. Si tardas más de 5 segundos, tu carta se lanza sola.</p>
+      <h3 data-t="turnos">Turnos</h3>
+      <p data-t="turnosTxt">Por turnos, cada jugador lanza a ciegas la carta de arriba de su montón. Del 2 al 10 no pasa nada: lanza el otro. Si tardas más de 5 segundos, tu carta se lanza sola.</p>
     </div>
     <div class="regla">
-      <h3>Figuras y castigos</h3>
-      <p>Una figura obliga al rival a lanzar seguidas: <b>J = 4</b>, <b>Q = 3</b>, <b>K = 2</b>, <b>A = 1</b> cartas.</p>
+      <h3 data-t="figuras">Figuras y castigos</h3>
+      <p data-t="figurasTxt">Una figura obliga al rival a lanzar seguidas: <b>J = 4</b>, <b>Q = 3</b>, <b>K = 2</b>, <b>A = 1</b> cartas.</p>
       <ul>
-        <li>Si en el castigo no sale ninguna figura, quien lanzó la última figura se lleva el montón.</li>
-        <li>Si sale una figura, el castigo se corta y ahora lo paga el otro.</li>
+        <li data-t="figurasLi1">Si en el castigo no sale ninguna figura, quien lanzó la última figura se lleva el montón.</li>
+        <li data-t="figurasLi2">Si sale una figura, el castigo se corta y ahora lo paga el otro.</li>
       </ul>
     </div>
     <div class="regla">
-      <h3>¡Bamboozle!</h3>
-      <p>Dos cartas seguidas del mismo valor. El primero en tocar la mesa se lleva el montón.</p>
+      <h3 data-t="titBamboozle">¡Bamboozle!</h3>
+      <p data-t="bamboozleTxt">Dos cartas seguidas del mismo valor. El primero en tocar la mesa se lleva el montón.</p>
       <div class="ejemplo" id="ejBamboozle"></div>
     </div>
     <div class="regla">
-      <h3>¡Sandwich!</h3>
-      <p>Dos cartas del mismo valor con una cualquiera en medio. También se gana tocando primero. Se puede desactivar en Opciones.</p>
+      <h3 data-t="titSandwich">¡Sandwich!</h3>
+      <p data-t="sandwichTxt">Dos cartas del mismo valor con una cualquiera en medio. También se gana tocando primero. Se puede desactivar en Opciones.</p>
       <div class="ejemplo" id="ejSandwich"></div>
     </div>
     <div class="regla">
-      <h3>Ooops (toque falso)</h3>
-      <p>Si tocas la mesa sin que haya jugada, el rival se lleva todo el montón. Se puede tocar en cualquier momento, incluso en mitad de un castigo.</p>
+      <h3 data-t="ooopsTit">Ooops (toque falso)</h3>
+      <p data-t="ooopsTxt">Si tocas la mesa sin que haya jugada, el rival se lleva todo el montón. Se puede tocar en cualquier momento, incluso en mitad de un castigo.</p>
     </div>
     <div class="regla">
-      <h3>Controles</h3>
-      <p><b>PC:</b> <b>flecha arriba (↑)</b> para lanzar, <b>barra espaciadora</b> para tocar la mesa (también vale hacer clic en ella).<br><b>Móvil:</b> desliza tu montón hacia arriba para lanzar, toca la mesa para tocar.</p>
+      <h3 data-t="controles">Controles</h3>
+      <p data-t="controlesTxt"><b>PC:</b> <b>flecha arriba (↑)</b> para lanzar, <b>barra espaciadora</b> para tocar la mesa (también vale hacer clic en ella).<br><b>Móvil:</b> desliza tu montón hacia arriba para lanzar, toca la mesa para tocar.</p>
     </div>
-    <button class="btn" id="btnCerrarReglas">Entendido</button>
+    <button class="btn" id="btnCerrarReglas" data-t="entendido">Entendido</button>
   </div>
 </div>
 
 <!-- ===================== ANTES DE EMPEZAR ===================== -->
 <div class="capa texto" id="intro" hidden>
   <div class="panel">
-    <h2>Antes de empezar</h2>
+    <h2 data-t="antesDeEmpezar">Antes de empezar</h2>
     <div class="regla">
-      <h3>De qué va</h3>
-      <p>Tú y la máquina os repartís 104 cartas. Por turnos, cada uno lanza la suya sin mirarla. Si sale una figura, el otro tiene que lanzar varias seguidas: <b>J 4</b>, <b>Q 3</b>, <b>K 2</b>, <b>A 1</b>. Si no le sale ninguna figura, quien puso la figura se lleva el montón. Gana quien se quede con todas las cartas.</p>
+      <h3 data-t="deQueVa">De qué va</h3>
+      <p data-t="deQueVaTxt">Tú y la máquina os repartís 104 cartas. Por turnos, cada uno lanza la suya sin mirarla. Si sale una figura, el otro tiene que lanzar varias seguidas: <b>J 4</b>, <b>Q 3</b>, <b>K 2</b>, <b>A 1</b>. Si no le sale ninguna figura, quien puso la figura se lleva el montón. Gana quien se quede con todas las cartas.</p>
     </div>
     <div class="regla">
-      <h3>Controles</h3>
+      <h3 data-t="controles">Controles</h3>
       <div class="teclas" id="introControles"></div>
     </div>
     <div class="dos">
       <div class="regla">
-        <h3>¡Bamboozle!</h3>
-        <p>Dos cartas seguidas del mismo valor.</p>
+        <h3 data-t="titBamboozle">¡Bamboozle!</h3>
+        <p data-t="introBamboozleTxt">Dos cartas seguidas del mismo valor.</p>
         <div class="ejemplo" id="introBamboozle"></div>
       </div>
       <div class="regla" id="introBloqueSandwich">
-        <h3>¡Sandwich!</h3>
-        <p>Dos iguales con una carta en medio.</p>
+        <h3 data-t="titSandwich">¡Sandwich!</h3>
+        <p data-t="introSandwichTxt">Dos iguales con una carta en medio.</p>
         <div class="ejemplo" id="introSandwich"></div>
       </div>
     </div>
-    <p class="aviso"><span id="introCuando">Cuando veas una de las dos</span>, toca la mesa antes que la máquina y el montón es tuyo. Pero si tocas sin que haya jugada, se lo lleva ella.</p>
-    <button class="btn" id="btnEmpezar">¡A jugar!</button>
+    <p class="aviso"><span id="introCuando">Cuando veas una de las dos</span><span data-t="introAvisoTxt">, toca la mesa antes que la máquina y el montón es tuyo. Pero si tocas sin que haya jugada, se lo lleva ella.</span></p>
+    <button class="btn" id="btnEmpezar" data-t="aJugar">¡A jugar!</button>
   </div>
 </div>
 
 <!-- ===================== PAUSA ===================== -->
 <div class="capa" id="pausa" hidden>
   <div class="panel">
-    <h2>Pausa</h2>
-    <button class="btn" id="btnContinuar">Continuar</button>
-    <button class="btn sec" id="btnReglasPausa">Reglas</button>
-    <button class="btn sec" id="btnSalir">Salir al menú</button>
+    <h2 data-t="pausa">Pausa</h2>
+    <button class="btn" id="btnContinuar" data-t="continuar">Continuar</button>
+    <button class="btn sec" id="btnReglasPausa" data-t="reglas">Reglas</button>
+    <button class="btn sec" id="btnSalir" data-t="salirMenu">Salir al menú</button>
   </div>
 </div>
 
@@ -414,8 +420,8 @@ kbd{display:inline-block;min-width:34px;padding:3px 8px;border-radius:6px;backgr
     <div class="logo" id="logoFin"></div>
     <h2 id="finTitulo"></h2>
     <p class="subtitulo" id="finTexto"></p>
-    <button class="btn" id="btnRevancha">Revancha</button>
-    <button class="btn sec" id="btnMenuFin">Menú</button>
+    <button class="btn" id="btnRevancha" data-t="revancha">Revancha</button>
+    <button class="btn sec" id="btnMenuFin" data-t="menu">Menú</button>
   </div>
 </div>
 
@@ -583,6 +589,108 @@ const PAUSA_COBRO = 1000;   // margen para tocar antes de que se cobre un castig
 const ANIM_RECOGER = 600;
 const IMPACTO_MANO = 150;   // ms hasta que la mano golpea la mesa (26 % de la animación .mano)
 const UMBRAL_DESLIZAR = 30;
+
+/* =====================================================================
+   IDIOMAS: español e inglés. Las claves de texto fijo van en el HTML (data-t, data-t-aria);
+   las que llevan datos son funciones.
+   ===================================================================== */
+const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+const TEXTOS = {
+  es: {
+    titBamboozle: '¡Bamboozle!', titSandwich: '¡Sandwich!', cartelBamboozle: '¡BAMBOOZLE!', cartelSandwich: '¡SANDWICH!',
+    pausa: 'Pausa', maquina: 'Máquina', mesa: 'Mesa', tu: 'Tú', mesaAria: 'Mesa: toca para hacer Bamboozle o Sandwich',
+    lema: 'Quédate con las 104 cartas.', jugar: 'Jugar', opciones: 'Opciones', reglas: 'Reglas',
+    notaSandwich: 'Tocar también cuando salen dos cartas iguales con una en medio (7 – K – 7).',
+    activado: 'Activado', desactivado: 'Desactivado', sonido: 'Sonido', volver: 'Volver',
+    comoSeJuega: 'Cómo se juega', objetivo: 'Objetivo',
+    objetivoTxt: 'Se reparten dos barajas (104 cartas) a partes iguales. Gana quien se queda con todas. Pierdes en cuanto te quedas sin cartas.',
+    turnos: 'Turnos',
+    turnosTxt: 'Por turnos, cada jugador lanza a ciegas la carta de arriba de su montón. Del 2 al 10 no pasa nada: lanza el otro. Si tardas más de 5 segundos, tu carta se lanza sola.',
+    figuras: 'Figuras y castigos',
+    figurasTxt: 'Una figura obliga al rival a lanzar seguidas: <b>J = 4</b>, <b>Q = 3</b>, <b>K = 2</b>, <b>A = 1</b> cartas.',
+    figurasLi1: 'Si en el castigo no sale ninguna figura, quien lanzó la última figura se lleva el montón.',
+    figurasLi2: 'Si sale una figura, el castigo se corta y ahora lo paga el otro.',
+    bamboozleTxt: 'Dos cartas seguidas del mismo valor. El primero en tocar la mesa se lleva el montón.',
+    sandwichTxt: 'Dos cartas del mismo valor con una cualquiera en medio. También se gana tocando primero. Se puede desactivar en Opciones.',
+    ooopsTit: 'Ooops (toque falso)',
+    ooopsTxt: 'Si tocas la mesa sin que haya jugada, el rival se lleva todo el montón. Se puede tocar en cualquier momento, incluso en mitad de un castigo.',
+    controles: 'Controles',
+    controlesTxt: '<b>PC:</b> <b>flecha arriba (↑)</b> para lanzar, <b>barra espaciadora</b> para tocar la mesa (también vale hacer clic en ella).<br><b>Móvil:</b> desliza tu montón hacia arriba para lanzar, toca la mesa para tocar.',
+    entendido: 'Entendido', antesDeEmpezar: 'Antes de empezar', deQueVa: 'De qué va',
+    deQueVaTxt: 'Tú y la máquina os repartís 104 cartas. Por turnos, cada uno lanza la suya sin mirarla. Si sale una figura, el otro tiene que lanzar varias seguidas: <b>J 4</b>, <b>Q 3</b>, <b>K 2</b>, <b>A 1</b>. Si no le sale ninguna figura, quien puso la figura se lleva el montón. Gana quien se quede con todas las cartas.',
+    introBamboozleTxt: 'Dos cartas seguidas del mismo valor.', introSandwichTxt: 'Dos iguales con una carta en medio.',
+    introCuandoDos: 'Cuando veas una de las dos', introCuandoUna: 'Cuando lo veas',
+    introAvisoTxt: ', toca la mesa antes que la máquina y el montón es tuyo. Pero si tocas sin que haya jugada, se lo lleva ella.',
+    aJugar: '¡A jugar!', continuar: 'Continuar', salirMenu: 'Salir al menú', revancha: 'Revancha', menu: 'Menú',
+    silenciar: 'Silenciar', activarSonido: 'Activar sonido',
+    ayudaTactil: 'Desliza tu montón hacia arriba para lanzar · toca la mesa para tocar',
+    ayudaPC: 'Flecha arriba (↑) para lanzar · Espacio para tocar la mesa',
+    controlesTactil: '<div><kbd>↑</kbd> Desliza tu montón hacia arriba para lanzar</div><div><kbd>☝</kbd> Toca la mesa para tocar</div>',
+    controlesPC: '<div><kbd>↑</kbd> Lanzar tu carta</div><div><kbd>Espacio</kbd> Tocar la mesa</div><div><kbd>Esc</kbd> Pausa</div>',
+    empiezasTu: 'Empiezas tú', empiezaIA: 'Empieza la máquina',
+    paraTi: n => `¡Para ti! +${plural(n, 'carta', 'cartas')}`,
+    iaSeLoLleva: n => `La máquina se lo lleva (+${plural(n, 'carta', 'cartas')})`,
+    ooopsIA: n => `La máquina tocó mal: te llevas ${plural(n, 'carta', 'cartas')}`,
+    ooopsTu: n => `Tocaste mal: la máquina se lleva ${plural(n, 'carta', 'cartas')}`,
+    teLlevas: n => `Te llevas el montón (+${plural(n, 'carta', 'cartas')})`,
+    iaSeLleva: n => `La máquina se lleva el montón (+${plural(n, 'carta', 'cartas')})`,
+    lanza: n => `¡Lanza ${plural(n, 'carta', 'cartas')}!`,
+    teFaltan: n => `Te falta${n === 1 ? '' : 'n'} ${n} por lanzar`,
+    iaDebe: n => `La máquina debe lanzar ${plural(n, 'carta', 'cartas')}`,
+    iaFaltan: n => `A la máquina le falta${n === 1 ? '' : 'n'} ${n} por lanzar`,
+    sinFigura: tuyo => `Sin figura: el montón es ${tuyo ? 'para ti' : 'para la máquina'}`,
+    hasGanado: '¡Has ganado!', haGanadoIA: 'Ha ganado la máquina',
+    finGanas: 'Te quedaste con las 104 cartas.', finPierdes: 'Te quedaste sin cartas. ¿Revancha?'
+  },
+  en: {
+    titBamboozle: 'Bamboozle!', titSandwich: 'Sandwich!', cartelBamboozle: 'BAMBOOZLE!', cartelSandwich: 'SANDWICH!',
+    pausa: 'Pause', maquina: 'CPU', mesa: 'Table', tu: 'You', mesaAria: 'Table: tap to call Bamboozle or Sandwich',
+    lema: 'Win all 104 cards.', jugar: 'Play', opciones: 'Options', reglas: 'Rules',
+    notaSandwich: 'Also slap when two equal cards have one card in between (7 – K – 7).',
+    activado: 'On', desactivado: 'Off', sonido: 'Sound', volver: 'Back',
+    comoSeJuega: 'How to play', objetivo: 'Goal',
+    objetivoTxt: 'Two decks (104 cards) are split evenly. Whoever ends up with every card wins. You lose as soon as you run out of cards.',
+    turnos: 'Turns',
+    turnosTxt: 'Players take turns flipping the top card of their pile without looking. A 2 to 10 does nothing: the other player goes next. If you take more than 5 seconds, your card is played for you.',
+    figuras: 'Face cards and penalties',
+    figurasTxt: 'A face card forces your opponent to play several cards in a row: <b>J = 4</b>, <b>Q = 3</b>, <b>K = 2</b>, <b>A = 1</b>.',
+    figurasLi1: 'If no face card shows up during the penalty, whoever played the last face card takes the pile.',
+    figurasLi2: 'If a face card shows up, the penalty stops and the other player has to pay instead.',
+    bamboozleTxt: 'Two cards of the same value in a row. The first to slap the table takes the pile.',
+    sandwichTxt: 'Two cards of the same value with any card in between. Slap first to win it too. It can be turned off in Options.',
+    ooopsTit: 'Ooops (wrong slap)',
+    ooopsTxt: 'If you slap the table when there is nothing to slap, your opponent takes the whole pile. You can slap at any moment, even in the middle of a penalty.',
+    controles: 'Controls',
+    controlesTxt: '<b>PC:</b> <b>up arrow (↑)</b> to play a card, <b>space bar</b> to slap the table (clicking it works too).<br><b>Mobile:</b> swipe your pile up to play a card, tap the table to slap.',
+    entendido: 'Got it', antesDeEmpezar: 'Before you start', deQueVa: 'The game',
+    deQueVaTxt: 'You and the CPU split 104 cards. Take turns playing yours without looking. When a face card comes up, the other player has to play several in a row: <b>J 4</b>, <b>Q 3</b>, <b>K 2</b>, <b>A 1</b>. If they don\'t hit a face card, whoever played the face card takes the pile. Win every card to win the game.',
+    introBamboozleTxt: 'Two cards of the same value in a row.', introSandwichTxt: 'Two equal cards with one in between.',
+    introCuandoDos: 'When you see either one', introCuandoUna: 'When you see it',
+    introAvisoTxt: ', slap the table before the CPU and the pile is yours. But slap when there is nothing there and the CPU takes it.',
+    aJugar: 'Let\'s play!', continuar: 'Resume', salirMenu: 'Quit to menu', revancha: 'Rematch', menu: 'Menu',
+    silenciar: 'Mute', activarSonido: 'Unmute',
+    ayudaTactil: 'Swipe your pile up to play · tap the table to slap',
+    ayudaPC: 'Up arrow (↑) to play · Space to slap the table',
+    controlesTactil: '<div><kbd>↑</kbd> Swipe your pile up to play a card</div><div><kbd>☝</kbd> Tap the table to slap</div>',
+    controlesPC: '<div><kbd>↑</kbd> Play your card</div><div><kbd>Space</kbd> Slap the table</div><div><kbd>Esc</kbd> Pause</div>',
+    empiezasTu: 'You go first', empiezaIA: 'The CPU goes first',
+    paraTi: n => `All yours! +${plural(n, 'card', 'cards')}`,
+    iaSeLoLleva: n => `The CPU takes it (+${plural(n, 'card', 'cards')})`,
+    ooopsIA: n => `The CPU slapped wrong: you get ${plural(n, 'card', 'cards')}`,
+    ooopsTu: n => `Wrong slap: the CPU gets ${plural(n, 'card', 'cards')}`,
+    teLlevas: n => `You take the pile (+${plural(n, 'card', 'cards')})`,
+    iaSeLleva: n => `The CPU takes the pile (+${plural(n, 'card', 'cards')})`,
+    lanza: n => `Play ${plural(n, 'card', 'cards')}!`,
+    teFaltan: n => `${n} more to play`,
+    iaDebe: n => `The CPU must play ${plural(n, 'card', 'cards')}`,
+    iaFaltan: n => `The CPU has ${n} more to play`,
+    sinFigura: tuyo => `No face card: the pile ${tuyo ? 'is yours' : 'goes to the CPU'}`,
+    hasGanado: 'You win!', haGanadoIA: 'The CPU wins',
+    finGanas: 'You got all 104 cards.', finPierdes: 'You ran out of cards. Rematch?'
+  }
+};
+let idioma = 'es';
+const t = (clave, ...datos) => { const v = TEXTOS[idioma][clave] ?? TEXTOS.es[clave]; return typeof v === 'function' ? v(...datos) : v; };
 
 const PALOS = ['♠', '♥', '♦', '♣'];
 const nombreRango = r => ({ 11: 'J', 12: 'Q', 13: 'K', 14: 'A' })[r] || String(r);
@@ -844,7 +952,7 @@ function iniciarPartida() {
   mostrarCapa(null);
   if (document.activeElement) document.activeElement.blur();
   render();
-  cartel(estado.turno === HUMANO ? 'Empiezas tú' : 'Empieza la máquina', '', 'info');
+  cartel(t(estado.turno === HUMANO ? 'empiezasTu' : 'empiezaIA'), '', 'info');
   planificar();
 }
 
@@ -894,19 +1002,16 @@ function manejarEvento(e) {
 
 function anunciarMonton(e) {
   const tuyo = e.jugador === HUMANO;
-  const n = `+${e.cartas} carta${e.cartas === 1 ? '' : 's'}`;
   if (e.motivo === 'BAMBOOZLE' || e.motivo === 'SANDWICH') {
     Sonido.grito(e.motivo === 'BAMBOOZLE' ? 'bamboozle' : 'sandwich');
-    cartel(e.motivo === 'BAMBOOZLE' ? '¡BAMBOOZLE!' : '¡SANDWICH!',
-      tuyo ? `¡Para ti! ${n}` : `La máquina se lo lleva (${n})`, 'jugada');
+    cartel(t(e.motivo === 'BAMBOOZLE' ? 'cartelBamboozle' : 'cartelSandwich'),
+      t(tuyo ? 'paraTi' : 'iaSeLoLleva', e.cartas), 'jugada');
   } else if (e.motivo === 'TOQUE_FALSO') {
-    cartel('Ooops',
-      tuyo ? `La máquina tocó mal: te llevas ${e.cartas} carta${e.cartas === 1 ? '' : 's'}`
-           : `Tocaste mal: la máquina se lleva ${e.cartas} carta${e.cartas === 1 ? '' : 's'}`, 'falso');
+    cartel('Ooops', t(tuyo ? 'ooopsIA' : 'ooopsTu', e.cartas), 'falso');
   } else {
     if (tuyo) Sonido.ganar(e.cartas);
     else Sonido.recoger();
-    cartel(tuyo ? `Te llevas el montón (${n})` : `La máquina se lleva el montón (${n})`, '', 'info');
+    cartel(t(tuyo ? 'teLlevas' : 'iaSeLleva', e.cartas), '', 'info');
   }
 }
 
@@ -1012,16 +1117,15 @@ function pintarCastigo() {
   const c = estado.castigo;
   let html = '';
   if (c) {
-    const n = c.restantes, cartas = `${n} carta${n === 1 ? '' : 's'}`;
+    const n = c.restantes, inicio = n === c.total;
     // un punto por carta del castigo: lleno = pendiente, vacío = ya lanzada
     const puntos = '<span class="puntos">' +
       Array.from({ length: c.total }, (_, i) => `<i class="${i < n ? 'lleno' : ''}"></i>`).join('') + '</span>';
-    const faltan = `falta${n === 1 ? '' : 'n'} ${n} por lanzar`;
     html = c.pagador === HUMANO
-      ? `<div class="aviso-castigo tuyo">${n === c.total ? `¡Lanza ${cartas}!` : `Te ${faltan}`} ${puntos}</div>`
-      : `<div class="aviso-castigo">${n === c.total ? `La máquina debe lanzar ${cartas}` : `A la máquina le ${faltan}`} ${puntos}</div>`;
+      ? `<div class="aviso-castigo tuyo">${t(inicio ? 'lanza' : 'teFaltan', n)} ${puntos}</div>`
+      : `<div class="aviso-castigo">${t(inicio ? 'iaDebe' : 'iaFaltan', n)} ${puntos}</div>`;
   } else if (estado.cobro !== null) {
-    html = `<div class="aviso-castigo cobro">Sin figura: el montón es ${estado.cobro === HUMANO ? 'para ti' : 'para la máquina'}</div>`;
+    html = `<div class="aviso-castigo cobro">${t('sinFigura', estado.cobro === HUMANO)}</div>`;
   }
   el.castigoInfo.innerHTML = html;
 }
@@ -1067,10 +1171,8 @@ function cartel(titulo, sub, tipo) {
 function mostrarFin(ganador) {
   const gano = ganador === HUMANO;
   gano ? Sonido.victoria() : Sonido.derrota();
-  el.finTitulo.textContent = gano ? '¡Has ganado!' : 'Ha ganado la máquina';
-  el.finTexto.textContent = gano
-    ? 'Te quedaste con las 104 cartas.'
-    : 'Te quedaste sin cartas. ¿Revancha?';
+  el.finTitulo.textContent = t(gano ? 'hasGanado' : 'haGanadoIA');
+  el.finTexto.textContent = t(gano ? 'finGanas' : 'finPierdes');
   mostrarCapa('fin');
 }
 
@@ -1165,7 +1267,7 @@ function pintarSonido() {
   el.btnSonido.innerHTML = Sonido.mudo
     ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-  el.btnSonido.setAttribute('aria-label', Sonido.mudo ? 'Activar sonido' : 'Silenciar');
+  el.btnSonido.setAttribute('aria-label', t(Sonido.mudo ? 'activarSonido' : 'silenciar'));
   document.querySelectorAll('#selSonido button').forEach(b =>
     b.setAttribute('aria-pressed', String((b.dataset.sonido === '1') === !Sonido.mudo)));
 }
@@ -1180,19 +1282,33 @@ function pintarSandwich() {
     b.setAttribute('aria-pressed', String((b.dataset.sandwich === '1') === conSandwich)));
   $('#introBloqueSandwich').hidden = !conSandwich;
   $('#introBloqueSandwich').parentElement.style.gridTemplateColumns = conSandwich ? '' : '1fr';
-  $('#introCuando').textContent = conSandwich ? 'Cuando veas una de las dos' : 'Cuando lo veas';
+  $('#introCuando').textContent = t(conSandwich ? 'introCuandoDos' : 'introCuandoUna');
+}
+
+// Aplica el idioma a todos los textos marcados y a los que se generan desde el código
+function aplicarIdioma(nuevo) {
+  idioma = TEXTOS[nuevo] ? nuevo : 'es';
+  document.documentElement.lang = idioma;
+  document.querySelectorAll('[data-t]').forEach(n => { n.innerHTML = t(n.dataset.t); });
+  document.querySelectorAll('[data-t-aria]').forEach(n => n.setAttribute('aria-label', t(n.dataset.tAria)));
+  document.querySelectorAll('#selIdioma button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.idioma === idioma)));
+  const tactil = matchMedia('(pointer: coarse)').matches;
+  el.ayuda.textContent = t(tactil ? 'ayudaTactil' : 'ayudaPC');
+  $('#introControles').innerHTML = t(tactil ? 'controlesTactil' : 'controlesPC');
+  pintarSonido();
+  pintarSandwich();
 }
 
 function prepararInterfaz() {
   Sonido.mudo = leer('slaproyale.mudo', '0') === '1';
   conSandwich = leer('slaproyale.sandwich', '1') === '1';
-  pintarSandwich();
-  pintarSonido();
+  // idioma guardado; si no hay, el del dispositivo (español o, si no, inglés)
+  aplicarIdioma(leer('slaproyale.idioma', (navigator.language || '').toLowerCase().startsWith('es') ? 'es' : 'en'));
+  document.querySelectorAll('#selIdioma button').forEach(b => b.addEventListener('click', () => {
+    guardar('slaproyale.idioma', b.dataset.idioma);
+    aplicarIdioma(b.dataset.idioma);
+  }));
   $('#logoMenu').innerHTML = $('#logoFin').innerHTML = `<img src="${LOGO_IMG}" alt="">`;
-  const tactil = matchMedia('(pointer: coarse)').matches;
-  el.ayuda.textContent = tactil
-    ? 'Desliza tu montón hacia arriba para lanzar · toca la mesa para tocar'
-    : 'Flecha arriba (↑) para lanzar · Espacio para tocar la mesa';
 
   const ej = s => s.split(' ').map((t, i) => {
     const [r, p] = [t.slice(0, -1), t.slice(-1)];
@@ -1200,9 +1316,6 @@ function prepararInterfaz() {
   }).join('');
   $('#ejBamboozle').innerHTML = $('#introBamboozle').innerHTML = ej('4♣ 7♥ 7♠');
   $('#ejSandwich').innerHTML = $('#introSandwich').innerHTML = ej('7♥ K♣ 7♦');
-  $('#introControles').innerHTML = tactil
-    ? '<div><kbd>↑</kbd> Desliza tu montón hacia arriba para lanzar</div><div><kbd>☝</kbd> Toca la mesa para tocar</div>'
-    : '<div><kbd>↑</kbd> Lanzar tu carta</div><div><kbd>Espacio</kbd> Tocar la mesa</div><div><kbd>Esc</kbd> Pausa</div>';
 
   document.querySelectorAll('#selSandwich button').forEach(b => b.addEventListener('click', () => {
     conSandwich = b.dataset.sandwich === '1';
