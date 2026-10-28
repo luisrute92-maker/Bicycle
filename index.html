@@ -121,7 +121,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .cartel strong{display:block;font-family:Georgia,"Times New Roman",serif;font-weight:900;letter-spacing:.03em}
 .cartel small{display:block;margin-top:4px;font-size:15px}
 .cartel.jugada{background:rgba(20,10,0,.82);border:3px solid var(--oro);color:var(--oro)}
-.cartel.jugada strong{font-size:clamp(18px,5.4vw,54px);letter-spacing:0;text-shadow:0 3px 0 var(--oro-osc)}
+.cartel.jugada strong{font-size:clamp(18px,5.4vw,54px);letter-spacing:0}
 .cartel.falso{background:rgba(40,0,0,.85);border:3px solid var(--peligro);color:#ffd6d6}
 .cartel.falso strong{font-size:clamp(26px,8vw,48px);color:var(--peligro)}
 .cartel.info{background:rgba(0,0,0,.6);animation-duration:1.3s}
@@ -145,7 +145,7 @@ body.pausado *{animation-play-state:paused !important}
 }
 .panel{width:100%;max-width:440px;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;margin:auto}
 .logo{color:var(--oro);width:120px}
-h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(44px,13vw,68px);color:var(--oro);letter-spacing:.02em;line-height:1;text-shadow:0 4px 0 var(--oro-osc)}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(44px,13vw,68px);color:var(--oro);letter-spacing:.02em;line-height:1}
 h2{font-family:Georgia,"Times New Roman",serif;font-size:32px;color:var(--oro)}
 .subtitulo{color:var(--texto-suave)}
 .btn{
@@ -159,16 +159,28 @@ h2{font-family:Georgia,"Times New Roman",serif;font-size:32px;color:var(--oro)}
 .selector button[aria-pressed="true"]{background:var(--texto);color:#123;font-weight:700}
 .etiqueta{font-size:13px;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.1em;margin-bottom:-10px}
 
-#reglas .panel{max-width:600px;text-align:left;align-items:stretch}
-#reglas h2{text-align:center}
-#reglas h3{color:var(--oro);font-size:17px;margin-bottom:6px}
-#reglas p,#reglas li{color:var(--texto);line-height:1.5;font-size:15px}
-#reglas ul{padding-left:20px}
+.texto .panel{max-width:600px;text-align:left;align-items:stretch}
+.texto h2{text-align:center}
+.texto h3{color:var(--oro);font-size:17px;margin-bottom:6px}
+.texto p,.texto li{color:var(--texto);line-height:1.5;font-size:15px}
+.texto ul{padding-left:20px}
 .regla{background:rgba(0,0,0,.22);border-radius:12px;padding:14px 16px}
 .ejemplo{--cw:46px;--ch:calc(var(--cw)*1.4);display:flex;gap:6px;margin:10px 0 2px;flex-wrap:wrap}
 .ejemplo .carta{position:relative;display:block;width:var(--cw);height:var(--ch)}
-.ejemplo .flecha{align-self:center;color:var(--texto-suave);font-size:14px;padding:0 4px}
-#reglas .btn{align-self:center}
+.texto .btn{align-self:center}
+#intro .panel{gap:12px}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){
+  .dos{gap:8px}
+  .dos .regla{padding:12px 10px}
+  .dos .ejemplo{--cw:34px;gap:4px}
+  .dos h3{font-size:15px}
+  .dos p{font-size:14px}
+}
+.teclas{display:flex;flex-direction:column;gap:6px}
+.teclas div{display:flex;align-items:center;gap:10px}
+kbd{display:inline-block;min-width:34px;padding:3px 8px;border-radius:6px;background:var(--carta);color:var(--negro);font:700 14px system-ui,sans-serif;text-align:center;box-shadow:0 2px 0 var(--carta-borde)}
+.aviso{font-size:14px !important;color:var(--texto-suave) !important;text-align:center}
 
 /* ---------- Pruebas ---------- */
 #pruebas{position:fixed;inset:0;overflow:auto;background:#0b1a12;padding:20px 16px;font-family:ui-monospace,Consolas,monospace;font-size:14px;z-index:100;touch-action:auto}
@@ -226,13 +238,18 @@ h2{font-family:Georgia,"Times New Roman",serif;font-size:32px;color:var(--oro)}
       <button data-dif="medio">Medio</button>
       <button data-dif="dificil">Difícil</button>
     </div>
+    <div class="etiqueta">Ensanduchamiento</div>
+    <div class="selector" id="selSandwich" role="group" aria-label="Ensanduchamiento">
+      <button data-sandwich="1">Activado</button>
+      <button data-sandwich="0">Desactivado</button>
+    </div>
     <button class="btn" id="btnJugar">Jugar</button>
     <button class="btn sec" id="btnReglas">Reglas</button>
   </div>
 </div>
 
 <!-- ===================== REGLAS ===================== -->
-<div class="capa" id="reglas" hidden>
+<div class="capa texto" id="reglas" hidden>
   <div class="panel">
     <h2>Cómo se juega</h2>
     <div class="regla">
@@ -258,7 +275,7 @@ h2{font-family:Georgia,"Times New Roman",serif;font-size:32px;color:var(--oro)}
     </div>
     <div class="regla">
       <h3>¡Ensanduchamiento!</h3>
-      <p>Dos cartas del mismo valor con una cualquiera en medio. También se gana tocando primero.</p>
+      <p>Dos cartas del mismo valor con una cualquiera en medio. También se gana tocando primero. Se puede desactivar en el menú.</p>
       <div class="ejemplo" id="ejSandwich"></div>
     </div>
     <div class="regla">
@@ -270,6 +287,35 @@ h2{font-family:Georgia,"Times New Roman",serif;font-size:32px;color:var(--oro)}
       <p><b>PC:</b> <b>flecha arriba (↑)</b> para lanzar, <b>barra espaciadora</b> para tocar la mesa (también vale hacer clic en ella).<br><b>Móvil:</b> desliza tu montón hacia arriba para lanzar, toca la mesa para tocar.</p>
     </div>
     <button class="btn" id="btnCerrarReglas">Entendido</button>
+  </div>
+</div>
+
+<!-- ===================== ANTES DE EMPEZAR ===================== -->
+<div class="capa texto" id="intro" hidden>
+  <div class="panel">
+    <h2>Antes de empezar</h2>
+    <div class="regla">
+      <h3>De qué va</h3>
+      <p>Tú y la máquina os repartís 104 cartas. Por turnos, cada uno lanza la suya sin mirarla. Si sale una figura, el otro tiene que lanzar varias seguidas: <b>J 4</b>, <b>Q 3</b>, <b>K 2</b>, <b>A 1</b>. Si no le sale ninguna figura, quien puso la figura se lleva el montón. Gana quien se quede con todas las cartas.</p>
+    </div>
+    <div class="regla">
+      <h3>Controles</h3>
+      <div class="teclas" id="introControles"></div>
+    </div>
+    <div class="dos">
+      <div class="regla">
+        <h3>¡Bamboozle!</h3>
+        <p>Dos cartas seguidas del mismo valor.</p>
+        <div class="ejemplo" id="introBamboozle"></div>
+      </div>
+      <div class="regla" id="introBloqueSandwich">
+        <h3>¡Ensanduchamiento!</h3>
+        <p>Dos iguales con una carta en medio.</p>
+        <div class="ejemplo" id="introSandwich"></div>
+      </div>
+    </div>
+    <p class="aviso"><span id="introCuando">Cuando veas una de las dos</span>, toca la mesa antes que la máquina y el montón es tuyo. Pero si tocas sin que haya jugada, se lo lleva ella.</p>
+    <button class="btn" id="btnEmpezar">¡A jugar!</button>
   </div>
 </div>
 
@@ -317,7 +363,7 @@ const Motor = (() => {
     };
   }
 
-  function nuevaPartida(semilla) {
+  function nuevaPartida(semilla, reglas = { ensanduchamiento: true }) {
     const rnd = crearRng(semilla);
     const mazo = [];
     let id = 0;
@@ -330,6 +376,7 @@ const Motor = (() => {
     }
     return {
       semilla: semilla >>> 0,
+      reglas: { ensanduchamiento: reglas.ensanduchamiento !== false },
       manos: [mazo.slice(0, 52), mazo.slice(52)], // índice 0 = carta de arriba
       mesa: [],                                    // último elemento = carta de arriba
       turno: rnd() < 0.5 ? 0 : 1,
@@ -340,10 +387,10 @@ const Motor = (() => {
     };
   }
 
-  function jugadaEnMesa(mesa) {
+  function jugadaEnMesa(mesa, reglas) {
     const n = mesa.length;
     if (n >= 2 && mesa[n - 1].r === mesa[n - 2].r) return 'BAMBOOZLE';
-    if (n >= 3 && mesa[n - 1].r === mesa[n - 3].r) return 'ENSANDUCHAMIENTO';
+    if (reglas?.ensanduchamiento !== false && n >= 3 && mesa[n - 1].r === mesa[n - 3].r) return 'ENSANDUCHAMIENTO';
     return null;
   }
 
@@ -412,7 +459,7 @@ const Motor = (() => {
       case 'TOCAR': {
         const p = accion.jugador;
         if (s.mesa.length === 0) return sinCambios;
-        const jugada = jugadaEnMesa(s.mesa);
+        const jugada = jugadaEnMesa(s.mesa, s.reglas);
         ev.push({ tipo: 'TOQUE', jugador: p, jugada, t: accion.t });
         if (jugada) {
           ganarMonton(s, p, jugada, ev);
@@ -550,21 +597,49 @@ const Sonido = {
   falso()   { this.tono(200, 0.4, 'sawtooth', 0.1, 0, 80); },
   recoger() { this.ruido(0.3, 0.25, 1200); },
   victoria(){ [523, 659, 784, 1047, 784, 1047].forEach((f, i) => this.tono(f, 0.25, 'triangle', 0.16, i * 0.12)); },
-  derrota() { [392, 330, 262, 196].forEach((f, i) => this.tono(f, 0.35, 'triangle', 0.16, i * 0.2)); }
+  derrota() { [392, 330, 262, 196].forEach((f, i) => this.tono(f, 0.35, 'triangle', 0.16, i * 0.2)); },
+
+  // Voz de presentador: síntesis de voz del sistema, preferiblemente masculina en inglés de EE. UU.
+  voz: null,
+  elegirVoz() {
+    if (!('speechSynthesis' in window)) return;
+    const todas = speechSynthesis.getVoices();
+    // Las voces «Natural» (Edge) suenan mucho mejor: van primero
+    const usa = todas.filter(v => /^en[-_]US/i.test(v.lang))
+      .sort((a, b) => /natural/i.test(b.name) - /natural/i.test(a.name));
+    const masculina = /david|guy|mark|alex|fred|daniel|aaron|tom|christopher|eric|roger|andrew|brian|davis|tony|jason|steffan|male/i;
+    const esMasc = v => masculina.test(v.name) && !/female/i.test(v.name);
+    this.voz = usa.find(esMasc) || todas.find(v => /^en/i.test(v.lang) && esMasc(v)) || usa[0] || null;
+    this.vozMasculina = !!this.voz && esMasc(this.voz);
+  },
+  bamboozle() {
+    if (this.mudo || !('speechSynthesis' in window)) return;
+    if (!this.voz) this.elegirVoz();
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance('Baaaam-boozle!');
+    u.lang = 'en-US';
+    if (this.voz) u.voice = this.voz;
+    u.pitch = this.vozMasculina ? 0.6 : 0.1; // sin voz masculina, se agrava la que haya
+    u.rate = 0.72;
+    u.volume = 1;
+    speechSynthesis.speak(u);
+  }
 };
+if ('speechSynthesis' in window) speechSynthesis.addEventListener('voiceschanged', () => Sonido.elegirVoz());
 
 /* =====================================================================
    INTERFAZ Y CONTROL DE LA PARTIDA
    ===================================================================== */
 let estado = null;
 let dificultad = 'medio';
+let conSandwich = true;
 let claveTurno = null, tareaTurno = null, tareaCobro = null;
 let tareasIA = [];
 let recogiendo = false;
 let ultimaLanzada = null;
 
 const el = {};
-['juego', 'menu', 'reglas', 'pausa', 'fin', 'mazoIA', 'mazoH', 'mesa', 'mesaCartas', 'mesaFondo',
+['juego', 'menu', 'reglas', 'intro', 'pausa', 'fin', 'mazoIA', 'mazoH', 'mesa', 'mesaCartas', 'mesaFondo',
  'cuentaIA', 'cuentaH', 'cuentaMesa', 'barraTiempo', 'ayuda', 'cartel', 'difEtiqueta', 'btnSonido',
  'finTitulo', 'finTexto'].forEach(id => el[id] = document.getElementById(id));
 
@@ -573,13 +648,13 @@ const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 
 let reglasDesde = 'menu';
 function mostrarCapa(id) {
-  for (const c of ['menu', 'reglas', 'pausa', 'fin']) el[c].hidden = c !== id;
+  for (const c of ['menu', 'reglas', 'intro', 'pausa', 'fin']) el[c].hidden = c !== id;
 }
 
 function iniciarPartida() {
   Reloj.limpiar();
   document.body.classList.remove('pausado');
-  estado = Motor.nuevaPartida((Math.random() * 2 ** 32) >>> 0);
+  estado = Motor.nuevaPartida((Math.random() * 2 ** 32) >>> 0, { ensanduchamiento: conSandwich });
   claveTurno = null; tareaTurno = null; tareaCobro = null; tareasIA = [];
   recogiendo = false; ultimaLanzada = null;
   el.mesaCartas.className = '';
@@ -640,6 +715,7 @@ function anunciarMonton(e) {
   const n = `+${e.cartas} carta${e.cartas === 1 ? '' : 's'}`;
   if (e.motivo === 'BAMBOOZLE' || e.motivo === 'ENSANDUCHAMIENTO') {
     Sonido.jugada();
+    if (e.motivo === 'BAMBOOZLE') Sonido.bamboozle();
     cartel(e.motivo === 'BAMBOOZLE' ? '¡BAMBOOZLE!' : '¡ENSANDUCHAMIENTO!',
       tuyo ? `¡Para ti! ${n}` : `La máquina se lo lleva (${n})`, 'jugada');
   } else if (e.motivo === 'TOQUE_FALSO') {
@@ -675,7 +751,7 @@ function observarIA() {
   const d = DIFICULTAD[dificultad];
   const mesa = estado.mesa;
   const arriba = mesa[mesa.length - 1];
-  const hayJugada = Motor.jugadaEnMesa(mesa) !== null;
+  const hayJugada = Motor.jugadaEnMesa(mesa, estado.reglas) !== null;
   const tocara = hayJugada ? Math.random() >= d.noVer : Math.random() < d.falso;
   if (!tocara) return;
   const t = Reloj.programar(() => {
@@ -882,11 +958,20 @@ function pintarDificultad() {
   document.querySelectorAll('#selDificultad button').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.dif === dificultad)));
 }
+function pintarSandwich() {
+  document.querySelectorAll('#selSandwich button').forEach(b =>
+    b.setAttribute('aria-pressed', String((b.dataset.sandwich === '1') === conSandwich)));
+  $('#introBloqueSandwich').hidden = !conSandwich;
+  $('#introBloqueSandwich').parentElement.style.gridTemplateColumns = conSandwich ? '' : '1fr';
+  $('#introCuando').textContent = conSandwich ? 'Cuando veas una de las dos' : 'Cuando lo veas';
+}
 
 function prepararInterfaz() {
   dificultad = DIFICULTAD[leer('bicicleta.dificultad', 'medio')] ? leer('bicicleta.dificultad', 'medio') : 'medio';
   Sonido.mudo = leer('bicicleta.mudo', '0') === '1';
+  conSandwich = leer('bicicleta.sandwich', '1') === '1';
   pintarDificultad();
+  pintarSandwich();
   pintarSonido();
   $('#logoMenu').innerHTML = BICI;
   $('#logoFin').innerHTML = BICI;
@@ -899,15 +984,29 @@ function prepararInterfaz() {
     const [r, p] = [t.slice(0, -1), t.slice(-1)];
     return htmlCarta({ id: i, r: { J: 11, Q: 12, K: 13, A: 14 }[r] || +r, s: '♠♥♦♣'.indexOf(p) });
   }).join('');
-  $('#ejBamboozle').innerHTML = ej('4♣ 7♥ 7♠');
-  $('#ejSandwich').innerHTML = ej('7♥ K♣ 7♦');
+  $('#ejBamboozle').innerHTML = $('#introBamboozle').innerHTML = ej('4♣ 7♥ 7♠');
+  $('#ejSandwich').innerHTML = $('#introSandwich').innerHTML = ej('7♥ K♣ 7♦');
+  $('#introControles').innerHTML = tactil
+    ? '<div><kbd>↑</kbd> Desliza tu montón hacia arriba para lanzar</div><div><kbd>☝</kbd> Toca la mesa para tocar</div>'
+    : '<div><kbd>↑</kbd> Lanzar tu carta</div><div><kbd>Espacio</kbd> Tocar la mesa</div><div><kbd>Esc</kbd> Pausa</div>';
 
   document.querySelectorAll('#selDificultad button').forEach(b => b.addEventListener('click', () => {
     dificultad = b.dataset.dif;
     guardar('bicicleta.dificultad', dificultad);
     pintarDificultad();
   }));
-  $('#btnJugar').addEventListener('click', () => { Sonido.init(); iniciarPartida(); });
+  document.querySelectorAll('#selSandwich button').forEach(b => b.addEventListener('click', () => {
+    conSandwich = b.dataset.sandwich === '1';
+    guardar('bicicleta.sandwich', conSandwich ? '1' : '0');
+    pintarSandwich();
+  }));
+  $('#btnJugar').addEventListener('click', () => {
+    Sonido.init();
+    mostrarCapa('intro');
+    $('#btnEmpezar').focus({ preventScroll: true });
+    el.intro.scrollTop = 0;
+  });
+  $('#btnEmpezar').addEventListener('click', iniciarPartida);
   $('#btnReglas').addEventListener('click', () => { reglasDesde = 'menu'; mostrarCapa('reglas'); });
   $('#btnReglasPausa').addEventListener('click', () => { reglasDesde = 'pausa'; mostrarCapa('reglas'); });
   $('#btnCerrarReglas').addEventListener('click', () => mostrarCapa(reglasDesde));
@@ -1038,6 +1137,17 @@ function ejecutarPruebas() {
     igual(Motor.jugadaEnMesa(cs('7p')), null);
   });
 
+  prueba('Con el Ensanduchamiento desactivado, tocarlo es toque falso', () => {
+    const s = { ...E({ mesa: '7p 9c 7d', m0: '2p', m1: '3p' }), reglas: { ensanduchamiento: false } };
+    igual(Motor.jugadaEnMesa(s.mesa, s.reglas), null);
+    const r = R(s, T(1));
+    afirmar(tipos(r.eventos).includes('TOQUE_FALSO'));
+    igual(r.estado.manos[0].length, 4);
+    igual(Motor.jugadaEnMesa(cs('9c 7p 7d'), s.reglas), 'BAMBOOZLE', 'el Bamboozle sigue valiendo');
+    igual(Motor.nuevaPartida(1, { ensanduchamiento: false }).reglas.ensanduchamiento, false);
+    igual(Motor.nuevaPartida(1).reglas.ensanduchamiento, true);
+  });
+
   prueba('Toque falso: el rival se lleva el montón y abre la ronda', () => {
     const r = R(E({ mesa: '3c 5p', m0: '2p', m1: '4p', turno: 0 }), T(0));
     afirmar(tipos(r.eventos).includes('TOQUE_FALSO'));
@@ -1124,12 +1234,12 @@ function ejecutarPruebas() {
     const LIMITE = 50000;
     let terminadas = 0, pasosTotales = 0, maxPasos = 0;
     for (let g = 0; g < 1000; g++) {
-      let s = Motor.nuevaPartida((rnd() * 2 ** 32) >>> 0);
+      let s = Motor.nuevaPartida((rnd() * 2 ** 32) >>> 0, { ensanduchamiento: g % 2 === 0 });
       let pasos = 0;
       while (s.ganador === null && pasos < LIMITE) {
         pasos++;
         let a;
-        if (Motor.jugadaEnMesa(s.mesa) && rnd() < 0.6) a = T(rnd() < 0.5 ? 0 : 1);
+        if (Motor.jugadaEnMesa(s.mesa, s.reglas) && rnd() < 0.6) a = T(rnd() < 0.5 ? 0 : 1);
         else if (s.mesa.length && rnd() < 0.01) a = T(rnd() < 0.5 ? 0 : 1);
         else if (s.cobro !== null) a = COBRAR;
         else a = L(s.turno);

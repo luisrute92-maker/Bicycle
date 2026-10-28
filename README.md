@@ -11,7 +11,7 @@ Todo el juego está en un único `index.html`, sin dependencias. Se abre con dob
   - Si durante el castigo sale una figura, el castigo pasa al otro jugador.
   - Si no sale ninguna, quien lanzó la última figura se lleva el montón.
 - **Bamboozle**: dos cartas seguidas del mismo valor. El primero en tocar la mesa se lleva el montón.
-- **Ensanduchamiento**: dos cartas del mismo valor con una cualquiera en medio (7 – K – 7). También se gana tocando primero.
+- **Ensanduchamiento**: dos cartas del mismo valor con una cualquiera en medio (7 – K – 7). También se gana tocando primero. Se puede desactivar en el menú.
 - **Toque falso**: si tocas sin que haya jugada, el rival se lleva el montón.
 - Pierdes en cuanto te quedas sin cartas.
 
