@@ -4,7 +4,7 @@ Juego de cartas para dos jugadores: tú contra la máquina. Se reparten dos bara
 
 Todo el juego está en un único `index.html`, sin dependencias. Se abre con doble clic en cualquier navegador.
 
-Disponible en **español e inglés**: el idioma se cambia desde el menú principal (ES / EN) y, la primera vez, se usa el del dispositivo.
+Disponible en **español e inglés**: el juego empieza en inglés y el idioma se cambia con las banderas del menú principal.
 
 ## Reglas
 

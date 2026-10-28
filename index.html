@@ -218,7 +218,10 @@ h2{font-family:var(--f-titulo);font-weight:400;font-size:34px;color:var(--oro);l
 .selector button[aria-pressed="true"]{background:var(--oro);color:#2a1d00;font-weight:800}
 .etiqueta{font-size:11px;font-weight:700;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.2em;margin-bottom:-10px}
 .selector.idioma{position:absolute;top:max(14px, env(safe-area-inset-top));right:16px;width:auto;max-width:none;z-index:1}
-.selector.idioma button{flex:none;padding:7px 12px;font-size:12px;font-weight:700;letter-spacing:.08em}
+.selector.idioma button{flex:none;padding:5px;line-height:0;opacity:.5;transition:opacity .15s}
+.selector.idioma button:hover{opacity:.8}
+.selector.idioma button[aria-pressed="true"]{background:none;opacity:1;box-shadow:inset 0 0 0 2px var(--oro)}
+.selector.idioma svg{width:30px;height:20px;border-radius:3px;display:block}
 .opcion{width:100%;max-width:300px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;border-radius:12px;background:rgba(0,0,0,.24);border:1px solid rgba(232,195,106,.14)}
 .opcion .etiqueta{margin:0;color:var(--oro);font-size:12px}
 .opcion .selector{max-width:none}
@@ -295,9 +298,23 @@ kbd{display:inline-block;min-width:34px;padding:3px 8px;border-radius:6px;backgr
 
 <!-- ===================== MENÚ ===================== -->
 <div class="capa" id="menu" hidden>
-  <div class="selector idioma" id="selIdioma" role="group" aria-label="Idioma / Language">
-    <button data-idioma="es">ES</button>
-    <button data-idioma="en">EN</button>
+  <div class="selector idioma" id="selIdioma" role="group" aria-label="Language / Idioma">
+    <button data-idioma="en" aria-label="English" title="English">
+      <svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <clipPath id="ukDiag"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#ukDiag)" stroke="#C8102E" stroke-width="4"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+      </svg>
+    </button>
+    <button data-idioma="es" aria-label="Español" title="Español">
+      <svg viewBox="0 0 750 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect width="750" height="500" fill="#AA151B"/>
+        <rect y="125" width="750" height="250" fill="#F1BF00"/>
+      </svg>
+    </button>
   </div>
   <div class="panel">
     <div class="logo" id="logoMenu"></div>
@@ -1302,8 +1319,8 @@ function aplicarIdioma(nuevo) {
 function prepararInterfaz() {
   Sonido.mudo = leer('slaproyale.mudo', '0') === '1';
   conSandwich = leer('slaproyale.sandwich', '1') === '1';
-  // idioma guardado; si no hay, el del dispositivo (español o, si no, inglés)
-  aplicarIdioma(leer('slaproyale.idioma', (navigator.language || '').toLowerCase().startsWith('es') ? 'es' : 'en'));
+  // idioma guardado; si no hay, inglés
+  aplicarIdioma(leer('slaproyale.idioma', 'en'));
   document.querySelectorAll('#selIdioma button').forEach(b => b.addEventListener('click', () => {
     guardar('slaproyale.idioma', b.dataset.idioma);
     aplicarIdioma(b.dataset.idioma);
