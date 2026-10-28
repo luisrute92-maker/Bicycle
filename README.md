@@ -1,4 +1,4 @@
-# Bicicleta
+# Slap Royale
 
 Juego de cartas para dos jugadores: tú contra la máquina. Se reparten dos barajas (104 cartas) y gana quien se queda con todas.
 
@@ -11,7 +11,7 @@ Todo el juego está en un único `index.html`, sin dependencias. Se abre con dob
   - Si durante el castigo sale una figura, el castigo pasa al otro jugador.
   - Si no sale ninguna, quien lanzó la última figura se lleva el montón.
 - **Bamboozle**: dos cartas seguidas del mismo valor. El primero en tocar la mesa se lleva el montón.
-- **Ensanduchamiento**: dos cartas del mismo valor con una cualquiera en medio (7 – K – 7). También se gana tocando primero. Se puede desactivar en el menú.
+- **Sandwich**: dos cartas del mismo valor con una cualquiera en medio (7 – K – 7). También se gana tocando primero. Se puede desactivar en Opciones.
 - **Toque falso**: si tocas sin que haya jugada, el rival se lleva el montón.
 - Pierdes en cuanto te quedas sin cartas.
 
@@ -27,3 +27,7 @@ Todo el juego está en un único `index.html`, sin dependencias. Se abre con dob
 ## Pruebas
 
 Abre `index.html?test=1` para ejecutar las pruebas del motor del juego, incluida una simulación de 1000 partidas.
+
+## Créditos
+
+- Tipografías [DM Serif Display](https://fonts.google.com/specimen/DM+Serif+Display) y [Montserrat](https://fonts.google.com/specimen/Montserrat), bajo licencia SIL Open Font License, incrustadas en `index.html`.
