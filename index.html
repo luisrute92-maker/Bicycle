@@ -94,6 +94,14 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   transform:rotate(-3deg);opacity:.85;
 }
 .info-mesa{font-size:14px;color:var(--texto-suave)}
+.castigo{min-height:30px;display:flex;align-items:center;justify-content:center}
+.castigo .aviso-castigo{display:flex;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;font-size:14px;font-weight:600;background:rgba(0,0,0,.35)}
+.castigo .tuyo{background:var(--oro);color:#2a1d00;animation:latido 1.2s ease-in-out infinite}
+.castigo .cobro{background:rgba(255,255,255,.15)}
+.castigo .puntos{display:flex;gap:4px}
+.castigo .puntos i{width:9px;height:9px;border-radius:50%;border:2px solid currentColor}
+.castigo .puntos i.lleno{background:currentColor}
+@keyframes latido{50%{transform:scale(1.05)}}
 
 /* Cartas */
 .carta{
@@ -214,6 +222,7 @@ kbd{display:inline-block;min-width:34px;padding:3px 8px;border-radius:6px;backgr
       <div id="mesaCartas"></div>
     </div>
     <div class="info-mesa">Mesa: <b id="cuentaMesa">0</b></div>
+    <div class="castigo" id="castigoInfo" aria-live="polite"></div>
   </section>
 
   <section class="zona">
@@ -433,7 +442,7 @@ const Motor = (() => {
           s.castigo = null;
           ev.push({ tipo: 'FIN_PARTIDA', ganador: o });
         } else if (esFigura(carta)) {
-          s.castigo = { pagador: o, restantes: CASTIGO[carta.r], dueno: p };
+          s.castigo = { pagador: o, restantes: CASTIGO[carta.r], total: CASTIGO[carta.r], dueno: p };
           s.turno = o;
           ev.push({ tipo: 'CASTIGO_INICIADO', pagador: o, cartas: CASTIGO[carta.r], dueno: p });
         } else if (s.castigo) {
@@ -640,7 +649,7 @@ let ultimaLanzada = null;
 
 const el = {};
 ['juego', 'menu', 'reglas', 'intro', 'pausa', 'fin', 'mazoIA', 'mazoH', 'mesa', 'mesaCartas', 'mesaFondo',
- 'cuentaIA', 'cuentaH', 'cuentaMesa', 'barraTiempo', 'ayuda', 'cartel', 'difEtiqueta', 'btnSonido',
+ 'cuentaIA', 'cuentaH', 'cuentaMesa', 'castigoInfo', 'barraTiempo', 'ayuda', 'cartel', 'difEtiqueta', 'btnSonido',
  'finTitulo', 'finTexto'].forEach(id => el[id] = document.getElementById(id));
 
 const leer = (k, def) => { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } };
@@ -811,6 +820,24 @@ function render() {
   el.cuentaH.textContent = estado.manos[HUMANO].length;
   el.cuentaMesa.textContent = recogiendo ? 0 : estado.mesa.length;
   if (!recogiendo) pintarMesa();
+  pintarCastigo();
+}
+
+function pintarCastigo() {
+  const c = estado.castigo;
+  let html = '';
+  if (c) {
+    const n = c.restantes, cartas = `${n} carta${n === 1 ? '' : 's'}`;
+    // un punto por carta del castigo: lleno = pendiente, vacío = ya lanzada
+    const puntos = '<span class="puntos">' +
+      Array.from({ length: c.total }, (_, i) => `<i class="${i < n ? 'lleno' : ''}"></i>`).join('') + '</span>';
+    html = c.pagador === HUMANO
+      ? `<div class="aviso-castigo tuyo">${n === c.total ? `¡Lanza ${cartas}!` : `Te queda${n === 1 ? '' : 'n'} ${cartas}`} ${puntos}</div>`
+      : `<div class="aviso-castigo">La máquina debe lanzar: ${n === c.total ? cartas : `le queda${n === 1 ? '' : 'n'} ${cartas}`} ${puntos}</div>`;
+  } else if (estado.cobro !== null) {
+    html = `<div class="aviso-castigo cobro">Sin figura: el montón es ${estado.cobro === HUMANO ? 'para ti' : 'para la máquina'}</div>`;
+  }
+  el.castigoInfo.innerHTML = html;
 }
 
 function pintarMazo(nodo, n, activo) {
@@ -1085,6 +1112,7 @@ function ejecutarPruebas() {
       let s = E({ m0: `${f}p 2c 3c`, m1: '2p 3p 4p 5p 6p 7p', turno: 0 });
       s = R(s, L(0)).estado;
       igual(s.castigo.restantes, n, f);
+      igual(s.castigo.total, n, f + ' total');
       igual(s.castigo.pagador, 1, f + ' pagador');
       igual(s.turno, 1, f + ' turno');
       for (let i = 0; i < n; i++) {
