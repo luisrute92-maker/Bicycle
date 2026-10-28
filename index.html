@@ -831,9 +831,10 @@ function pintarCastigo() {
     // un punto por carta del castigo: lleno = pendiente, vacío = ya lanzada
     const puntos = '<span class="puntos">' +
       Array.from({ length: c.total }, (_, i) => `<i class="${i < n ? 'lleno' : ''}"></i>`).join('') + '</span>';
+    const faltan = `falta${n === 1 ? '' : 'n'} ${n} por lanzar`;
     html = c.pagador === HUMANO
-      ? `<div class="aviso-castigo tuyo">${n === c.total ? `¡Lanza ${cartas}!` : `Te queda${n === 1 ? '' : 'n'} ${cartas}`} ${puntos}</div>`
-      : `<div class="aviso-castigo">La máquina debe lanzar: ${n === c.total ? cartas : `le queda${n === 1 ? '' : 'n'} ${cartas}`} ${puntos}</div>`;
+      ? `<div class="aviso-castigo tuyo">${n === c.total ? `¡Lanza ${cartas}!` : `Te ${faltan}`} ${puntos}</div>`
+      : `<div class="aviso-castigo">${n === c.total ? `La máquina debe lanzar ${cartas}` : `A la máquina le ${faltan}`} ${puntos}</div>`;
   } else if (estado.cobro !== null) {
     html = `<div class="aviso-castigo cobro">Sin figura: el montón es ${estado.cobro === HUMANO ? 'para ti' : 'para la máquina'}</div>`;
   }
